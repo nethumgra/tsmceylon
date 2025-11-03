@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSM Admin Panel</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        #loading-spinner {
+            border-top-color: #3b82f6; 
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .nav-link.active {
+            background-color: #374151; 
+            border-left: 4px solid #3b82f6;
+            padding-left: calc(1rem - 4px);
+        }
+        #layout-list li {
+            cursor: move;
+        }
+        #layout-list li.dragging {
+            opacity: 0.5;
+            background: #e0f2fe; 
+        }
+        #layout-list li .drag-handle {
+            cursor: grab;
+        }
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #3b82f6;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans">
+
+    <div id="loading-spinner" class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-[100] flex items-center justify-center">
+        <div class="w-16 h-16 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+    </div>
+
+    <div id="message-box" class="hidden fixed top-5 right-5 z-[99] p-4 rounded-md text-white shadow-lg max-w-sm">
+        <span id="message-text"></span>
+        <button id="message-close" class="ml-4 font-bold">&times;</button>
+    </div>
+
+    <div id="login-overlay" class="fixed top-0 left-0 w-full h-full bg-gray-900 z-50 flex items-center justify-center p-4">
+        <form id="login-form" class="bg-white p-8 rounded-lg shadow-xl w-full max-w-sm">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">TSM Admin Login</h2>
+            <div class="mb-4">
+                <label for="login-email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="login-email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div class="mb-6">
+                <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" id="login-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Login
+            </button>
+        </form>
+    </div>
+
+    <div id="admin-panel-content" class="flex h-screen hidden">
+        <nav class="w-64 bg-slate-800 text-white flex flex-col flex-shrink-0">
+            <div class="p-5 text-2xl font-bold border-b border-slate-700">TSM Admin</div>
+            <ul class="flex-grow overflow-y-auto">
+                <li><a href="#" id="nav-layout" class="nav-link block p-4 hover:bg-slate-700"><i class="fas fa-layer-group mr-2 w-5 text-center"></i>Homepage Layout</a></li>
+                <li><a href="#" id="nav-settings" class="nav-link block p-4 hover:bg-slate-700"><i class="fas fa-cog mr-2 w-5 text-center"></i>General Settings</a></li>
+                <li><a href="#" id="nav-footer" class="nav-link block p-4 hover:bg-slate-700"><i class="fas fa-shoe-prints mr-2 w-5 text-center"></i>Footer Manager</a></li>
+                <li><a href="#" id="nav-hero" class="nav-link block p-4 hover:bg-slate-700"><i class="fas fa-image mr-2 w-5 text-center"></i>Hero Slider (3)</a></li>
+                <li><a href="#" id="nav-small-banners" class="nav-link block p-4 hover:bg-slate-700"><i class="fas fa-images mr-2 w-5 text-center"></i>Small Ad Banners (3)</a></li>
+                <li><a href="#" id="nav-shop-by-cat" class="nav-link block p-4 hover:bg-slate-700"><i class="fas fa-store mr-2 w-5 text-center"></i>Category Banners (Grid)</a></li>
+                <li><a href="#" id="nav-categories" class="nav-link block p-4 hover:bg-slate-700"><i class="fas fa-tags mr-2 w-5 text-center"></i>Categories (Circles)</a></li>
+                <li><a href="#" id="nav-promo-banners" class="nav-link block p-4 hover:bg-slate-700"><i class="fas fa-ad mr-2 w-5 text-center"></i>Promo Banners</a></li>
+                <li><a href="#" id="nav-carousels" class="nav-link block p-4 hover:bg-slate-700"><i class="fas fa-heading mr-2 w-5 text-center"></i>Carousel Titles</a></li>
+                <li><a href="#" id="nav-products" class="nav-link block p-4 hover:bg-slate-700"><i class="fas fa-box-open mr-2 w-5 text-center"></i>Manage Products</a></li>
+            </ul>
+            <div class="border-t border-slate-700 p-4">
+                <a href="#" id="logout-button" class="block p-4 bg-red-600 text-white rounded-md text-center font-semibold hover:bg-red-700">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
+                </a>
+            </div>
+        </nav>
+
+        <main class="flex-1 p-6 md:p-8 overflow-y-auto">
+            
+            <section id="section-layout" class="admin-section bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Homepage Layout Manager</h2>
+                <p class="mb-4 text-sm text-gray-600">Drag and drop (or move) sections to re-order the homepage. Use the toggle to hide/show sections.</p>
+                <ul id="layout-list" class="space-y-3 mb-6">
+                    <li class="p-4 bg-gray-100 text-gray-500 text-center rounded-md">Loading layout...</li>
+                </ul>
+                <button id="save-layout-btn" class="px-5 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700">Save Layout</button>
+            </section>
+
+            <section id="section-settings" class="admin-section hidden bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">General Site Settings</h2>
+                <form id="form-site-settings">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="site-logo-text" class="block text-sm font-medium text-gray-700">Logo Text</label>
+                            <input type="text" id="site-logo-text" placeholder="TSM CEYLON" class="mt-1 block w-full max-w-md px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label for="site-hotline" class="block text-sm font-medium text-gray-700">Header Hotline Number</label>
+                            <input type="text" id="site-hotline" placeholder="011 2001122" class="mt-1 block w-full max-w-md px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label for="site-exchange-rate" class="block text-sm font-medium text-gray-700">LKR to USD Exchange Rate</label>
+                            <input type="number" step="0.01" id="site-exchange-rate" placeholder="300.00" class="mt-1 block w-full max-w-md px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label for="site-bg-color" class="block text-sm font-medium text-gray-700">Main Background Color</label>
+                            <div class="flex items-center gap-2 mt-1">
+                                <input type="color" id="site-bg-color" class="w-12 h-10 p-1 border border-gray-300 rounded-md cursor-pointer">
+                                <input type="text" id="site-bg-color-hex" placeholder="#f8f8f8" class="px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700">Save General Settings</button>
+                </form>
+            </section>
+
+            <section id="section-footer" class="admin-section hidden bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Footer Manager</h2>
+                
+                <form id="form-footer-contact" class="mb-6 border-b pb-6">
+                    <h3 class="text-lg font-semibold mb-4">Footer Contact & Socials</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <textarea id="footer-address" rows="3" placeholder="Footer Address (e.g., 279C, Nawala Road,...)" class="md:col-span-2 px-3 py-2 border border-gray-300 rounded-md"></textarea>
+                        <input type="email" id="footer-email" placeholder="Footer Email (info@tsmceylon.com)" class="px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="tel" id="footer-hotline" placeholder="Footer Hotline (011 2001122)" class="px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="url" id="footer-facebook-url" placeholder="Facebook URL (https://...)" class="px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="url" id="footer-youtube-url" placeholder="YouTube URL (https://...)" class="px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="url" id="footer-instagram-url" placeholder="Instagram URL (https://...)" class="px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <button type="submit" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700">Save Contact Info</button>
+                </form>
+                
+                <h3 class="text-lg font-semibold mb-4">Footer Links</h3>
+                <form id="form-add-footer-link" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" id="footer-link-text" placeholder="Link Text (e.g., About Us)" class="px-3 py-2 border border-gray-300 rounded-md" required>
+                    <input type="text" id="footer-link-url" placeholder="Link URL (e.g., about.html)" class="px-3 py-2 border border-gray-300 rounded-md" required>
+                    <select id="footer-link-column" class="px-3 py-2 border border-gray-300 rounded-md" required>
+                        <option value="col_tsmgroup">TSM GROUP</option>
+                        <option value="col_info">INFO</option>
+                        <option value="col_quicklinks">QUICK LINKS</option>
+                    </select>
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md font-semibold hover:bg-green-700">Add Link</button>
+                </form>
+                
+                <div id="footer-links-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <h4 class="font-bold mb-2">TSM GROUP</h4>
+                        <ul id="list-col_tsmgroup" class="space-y-1"></ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-2">INFO</h4>
+                        <ul id="list-col_info" class="space-y-1"></ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-2">QUICK LINKS</h4>
+                        <ul id="list-col_quicklinks" class="space-y-1"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-hero" class="admin-section hidden bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Manage Hero Slider (3 Banners)</h2>
+                <p class="text-sm text-gray-600 mb-4 -mt-2">Oya `index.html` eke adala thanata galapenna PC, Tablet, Mobile walata wena wena images 3k danna. Ekak witharak dammaoth, eka image eka than 3tama pennai.</p>
+                <div class="space-y-8">
+                    
+                    <form id="form-hero1" class="border p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4">Hero Banner 1</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                            <div class="border p-3 rounded-md bg-gray-50">
+                                <label for="hero1-file-pc" class="block text-sm font-medium text-gray-700 mb-1">PC Image (Wide)</label>
+                                <img id="hero1-img-pc" src="https://placehold.co/1200x400/e2e8f0/94a3b8?text=Loading+PC..." alt="PC Banner 1" class="w-full aspect-[3/1] object-contain rounded-md border bg-white mb-2">
+                                <input type="file" id="hero1-file-pc" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+                            </div>
+                            <div class="border p-3 rounded-md bg-gray-50">
+                                <label for="hero1-file-tab" class="block text-sm font-medium text-gray-700 mb-1">Tablet Image (Square-ish)</label>
+                                <img id="hero1-img-tab" src="https://placehold.co/800x600/e2e8f0/94a3b8?text=Loading+Tab..." alt="Tablet Banner 1" class="w-full aspect-[4/3] object-contain rounded-md border bg-white mb-2">
+                                <input type="file" id="hero1-file-tab" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+                            </div>
+                            <div class="border p-3 rounded-md bg-gray-50">
+                                <label for="hero1-file-mob" class="block text-sm font-medium text-gray-700 mb-1">Mobile Image (Portrait)</label>
+                                <img id="hero1-img-mob" src="https://placehold.co/600x800/e2e8f0/94a3b8?text=Loading+Mob..." alt="Mobile Banner 1" class="w-full aspect-[3/4] object-contain rounded-md border bg-white mb-2">
+                                <input type="file" id="hero1-file-mob" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="hero1-link" class="block text-sm font-medium text-gray-700">Banner Link URL (Same for all)</label>
+                            <input type="text" id="hero1-link" placeholder="https://example.com/offers" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 disabled:opacity-50">Save Banner 1</button>
+                    </form>
+
+                    <form id="form-hero2" class="border p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4">Hero Banner 2</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                            <div class="border p-3 rounded-md bg-gray-50">
+                                <label for="hero2-file-pc" class="block text-sm font-medium text-gray-700 mb-1">PC Image (Wide)</label>
+                                <img id="hero2-img-pc" src="https://placehold.co/1200x400/e2e8f0/94a3b8?text=Loading+PC..." alt="PC Banner 2" class="w-full aspect-[3/1] object-contain rounded-md border bg-white mb-2">
+                                <input type="file" id="hero2-file-pc" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+                            </div>
+                            <div class="border p-3 rounded-md bg-gray-50">
+                                <label for="hero2-file-tab" class="block text-sm font-medium text-gray-700 mb-1">Tablet Image (Square-ish)</label>
+                                <img id="hero2-img-tab" src="https://placehold.co/800x600/e2e8f0/94a3b8?text=Loading+Tab..." alt="Tablet Banner 2" class="w-full aspect-[4/3] object-contain rounded-md border bg-white mb-2">
+                                <input type="file" id="hero2-file-tab" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+                            </div>
+                            <div class="border p-3 rounded-md bg-gray-50">
+                                <label for="hero2-file-mob" class="block text-sm font-medium text-gray-700 mb-1">Mobile Image (Portrait)</label>
+                                <img id="hero2-img-mob" src="https://placehold.co/600x800/e2e8f0/94a3b8?text=Loading+Mob..." alt="Mobile Banner 2" class="w-full aspect-[3/4] object-contain rounded-md border bg-white mb-2">
+                                <input type="file" id="hero2-file-mob" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="hero2-link" class="block text-sm font-medium text-gray-700">Banner Link URL (Same for all)</label>
+                            <input type="text" id="hero2-link" placeholder="https://example.com/offers" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 disabled:opacity-50">Save Banner 2</button>
+                    </form>
+
+                    <form id="form-hero3" class="border p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4">Hero Banner 3</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                            <div class="border p-3 rounded-md bg-gray-50">
+                                <label for="hero3-file-pc" class="block text-sm font-medium text-gray-700 mb-1">PC Image (Wide)</label>
+                                <img id="hero3-img-pc" src="https://placehold.co/1200x400/e2e8f0/94a3b8?text=Loading+PC..." alt="PC Banner 3" class="w-full aspect-[3/1] object-contain rounded-md border bg-white mb-2">
+                                <input type="file" id="hero3-file-pc" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+                            </div>
+                            <div class="border p-3 rounded-md bg-gray-50">
+                                <label for="hero3-file-tab" class="block text-sm font-medium text-gray-700 mb-1">Tablet Image (Square-ish)</label>
+                                <img id="hero3-img-tab" src="https://placehold.co/800x600/e2e8f0/94a3b8?text=Loading+Tab..." alt="Tablet Banner 3" class="w-full aspect-[4/3] object-contain rounded-md border bg-white mb-2">
+                                <input type="file" id="hero3-file-tab" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+                            </div>
+                            <div class="border p-3 rounded-md bg-gray-50">
+                                <label for="hero3-file-mob" class="block text-sm font-medium text-gray-700 mb-1">Mobile Image (Portrait)</label>
+                                <img id="hero3-img-mob" src="https://placehold.co/600x800/e2e8f0/94a3b8?text=Loading+Mob..." alt="Mobile Banner 3" class="w-full aspect-[3/4] object-contain rounded-md border bg-white mb-2">
+                                <input type="file" id="hero3-file-mob" accept="image/*" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="hero3-link" class="block text-sm font-medium text-gray-700">Banner Link URL (Same for all)</label>
+                            <input type="text" id="hero3-link" placeholder="https://example.com/offers" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 disabled:opacity-50">Save Banner 3</button>
+                    </form>
+
+                </div>
+            </section>
+            <section id="section-small-banners" class="admin-section hidden bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Manage Small Ad Banners (3)</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <form id="form-small-banner1" class="border p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2">Small Banner 1</h3>
+                        <img id="current-smallBanner1-img" src="https://placehold.co/400x200/e2e8f0/94a3b8?text=Loading..." alt="Small Banner 1" class="w-full rounded-md border bg-gray-100 mb-2">
+                        <input type="file" id="smallBanner1-file" accept="image/*" class="mb-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+                        <input type="text" id="smallBanner1-link" placeholder="Link for Banner 1" class="mb-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                        <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700">Save Banner 1</button>
+                    </form>
+                    <form id="form-small-banner2" class="border p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2">Small Banner 2</h3>
+                        <img id="current-smallBanner2-img" src="https://placehold.co/400x200/e2e8f0/94a3b8?text=Loading..." alt="Small Banner 2" class="w-full rounded-md border bg-gray-100 mb-2">
+                        <input type="file" id="smallBanner2-file" accept="image/*" class="mb-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+                        <input type="text" id="smallBanner2-link" placeholder="Link for Banner 2" class="mb-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                        <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700">Save Banner 2</button>
+                    </form>
+                    <form id="form-small-banner3" class="border p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2">Small Banner 3</h3>
+                        <img id="current-smallBanner3-img" src="https://placehold.co/400x200/e2e8f0/94a3b8?text=Loading..." alt="Small Banner 3" class="w-full rounded-md border bg-gray-100 mb-2">
+                        <input type="file" id="smallBanner3-file" accept="image/*" class="mb-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+                        <input type="text" id="smallBanner3-link" placeholder="Link for Banner 3" class="mb-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                        <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700">Save Banner 3</button>
+                    </form>
+                </div>
+            </section>
+            <section id="section-shop-by-cat" class="admin-section hidden bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Manage "Shop By Category" Banners (Grid)</h2>
+                <form id="form-add-shop-by-cat" class="mb-6 border-b pb-6">
+                    <h3 class="text-lg font-semibold mb-2">Add New Category Banner</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input type="file" id="shop-by-cat-file" accept="image/*" class="md:col-span-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50" required>
+                        <input type="text" id="shop-by-cat-link" placeholder="Link URL" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                        <select id="shop-by-cat-size" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                            <option value="large">Large (Loku)</option>
+                            <option value="small">Small (Podi)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="mt-4 px-4 py-2 bg-green-600 text-white rounded-md font-semibold hover:bg-green-700">Add Category Banner</button>
+                </form>
+                <h3 class="text-lg font-semibold mb-2">Current Banners</h3>
+                <div id="shop-by-cat-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <p class="text-gray-500">Loading banners...</p>
+                </div>
+            </section>
+
+            <section id="section-categories" class="admin-section hidden bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Manage Categories (Circles)</h2>
+                <form id="form-add-category" class="mb-6 border-b pb-6">
+                    <h3 class="text-lg font-semibold mb-2">Add New Category</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4"> 
+                        <input type="text" id="category-name" placeholder="Category Name (e.g., Supermarket)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                        <div class="relative">
+                            <label for="category-color" class="absolute -top-2 left-2 text-xs text-gray-500 bg-white px-1">Circle Color</label>
+                            <input type="color" id="category-color" value="#FFFFFF" class="h-10 w-full p-1 border border-gray-300 rounded-md cursor-pointer">
+                        </div>
+                        <input type="file" id="category-file" accept="image/*" class="md:col-span-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50" required>
+                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md font-semibold hover:bg-green-700">Add Category</button>
+                    </div>
+                </form>
+                <h3 class="text-lg font-semibold mb-2">Current Categories</h3>
+                <div id="categories-list" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                </div>
+            </section>
+
+            <section id="section-promo-banners" class="admin-section hidden bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Manage Promo Banners</h2>
+                <div class="space-y-8">
+                    <form id="form-promo1" class="border p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2">Promo Banner 1</h3>
+                        <p class="text-xs text-gray-500 mb-2">(Carousel 2ta passe pennanne meka)</p>
+                        <img id="promo1-img" src="https://placehold.co/1200x250/e2e8f0/94a3b8?text=Loading+Image..." alt="Promo Banner 1" class="w-full max-w-lg rounded-md border bg-gray-100 mb-2">
+                        <div class="mb-2">
+                            <label for="promo1-file" class="block text-sm font-medium text-gray-700">Upload New Image</label>
+                            <input type="file" id="promo1-file" accept="image/*" class="mt-1 block w-full text-sm">
+                        </div>
+                        <div class="mb-2">
+                            <label for="promo1-link" class="block text-sm font-medium text-gray-700">Banner Link URL</label>
+                            <input type="text" id="promo1-link" placeholder="https://example.com/offers" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700">Save Promo Banner 1</button>
+                    </form>
+                </div>
+            </section>
+            
+            <section id="section-carousels" class="admin-section hidden bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Manage Product Carousel Titles</h2>
+                <form id="form-save-carousels">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="carousel-1-name" class="block text-sm font-medium text-gray-700">Carousel 1 Title (e.g., Super Deals)</label>
+                            <input type="text" id="carousel-1-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label for="carousel-2-name" class="block text-sm font-medium text-gray-700">Carousel 2 Title (e.g., Featured Products)</label>
+                            <input type="text" id="carousel-2-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label for="carousel-3-name" class="block text-sm font-medium text-gray-700">Carousel 3 Title (e.g., New Arrivals)</label>
+                            <input type="text" id="carousel-3-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                    <button type="submit" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700">Save All Titles</button>
+                </form>
+            </section>
+
+            <section id="section-products" class="admin-section hidden bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Manage Products</h2>
+                
+                <form id="form-add-product" class="mb-6 border-b pb-6">
+                    <h3 class="text-lg font-semibold mb-2">Add New Product</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="product-name" placeholder="Product Name" class="px-3 py-2 border border-gray-300 rounded-md" required>
+                        <input type="file" id="product-file" accept="image/*" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50" required>
+                        
+                        <input type="number" step="0.01" id="product-price" placeholder="Current Price (LKR)" class="px-3 py-2 border border-gray-300 rounded-md" required>
+                        <input type="text" id="product-price-usdt" placeholder="USD (Auto-Calculated)" class="px-3 py-2 border border-gray-300 rounded-md bg-gray-100" disabled>
+                        
+                        <input type="number" step="0.01" id="product-original-price" placeholder="Original Price (LKR - Optional)" class="px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="text" id="product-original-price-usdt" placeholder="USD (Auto-Calculated)" class="px-3 py-2 border border-gray-300 rounded-md bg-gray-100" disabled>
+                        <input type="text" id="product-sale-tag" placeholder="Sale Tag (Optional, e.g., 40% OFF)" class="px-3 py-2 border border-gray-300 rounded-md">
+                        <input type="text" id="product-categories" placeholder="Category (Optional, e.g., Supermarket)" class="px-3 py-2 border border-gray-300 rounded-md">
+                        <textarea id="product-description" rows="3" placeholder="Product Description (Optional)" class="md:col-span-2 px-3 py-2 border border-gray-300 rounded-md"></textarea>
+                        
+                        <div class="md:col-span-2 border rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Assign to Homepage Carousels:</h4>
+                            <div class="flex flex-wrap gap-x-6 gap-y-2">
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="product-carousel-1" value="carousel_1" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="product-carousel-1" class="text-sm">Carousel 1 (<span id="label-carousel-1" class="font-semibold text-blue-600">...</span>)</label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="product-carousel-2" value="carousel_2" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="product-carousel-2" class="text-sm">Carousel 2 (<span id="label-carousel-2" class="font-semibold text-blue-600">...</span>)</label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="product-carousel-3" value="carousel_3" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="product-carousel-3" class="text-sm">Carousel 3 (<span id="label-carousel-3" class="font-semibold text-blue-600">...</span>)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="add-product-btn" class="md:col-span-2 px-4 py-2 bg-green-600 text-white rounded-md font-semibold hover:bg-green-700 disabled:opacity-50">
+                            Add Product
+                        </button>
+                    </div>
+                </form>
+
+                <h3 class="text-lg font-semibold mb-2">Current Products</h3>
+                <div id="products-list" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                </div>
+            </section>
+            
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            addDoc, 
+            deleteDoc, 
+            collection, 
+            onSnapshot, 
+            setLogLevel
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyANuQiVXF-9Uw1ZTQf0rSDDf8uOv9AJFaU",
+          authDomain: "tsmceylon-205ef.firebaseapp.com",
+          projectId: "tsmceylon-205ef",
+          storageBucket: "tsmceylon-205ef.firebasestorage.app",
+          messagingSenderId: "206746341347",
+          appId: "1:206746341347:web:3f78b78144dca573f85ad6",
+          measurementId: "G-DQ5CN05SMY"
+        };
+
+        const IMG_BB_API_KEY = "ce3dcdadccbd6664a1ffabae26de0d88";
+
+        let db, auth;
+        let isAuthReady = false;
+        let currentExchangeRate = 300.0;
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const publicDataPath = `/artifacts/${appId}/public/data`;
+        const usersPath = `/users`; 
+
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const msgBox = document.getElementById('message-box');
+        const msgText = document.getElementById('message-text');
+        const msgClose = document.getElementById('message-close');
+
+        
+        function showLoading(show) {
+            loadingSpinner.classList.toggle('hidden', !show);
+        }
+
+        function showMessage(message, isError = false) {
+            msgText.textContent = message;
+            msgBox.classList.remove('hidden', 'bg-green-500', 'bg-red-500');
+            msgBox.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
+            
+            setTimeout(() => {
+                msgBox.classList.add('hidden');
+            }, 3000);
+        }
+        msgClose.onclick = () => msgBox.classList.add('hidden');
+
+        const sections = document.querySelectorAll('.admin-section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        function showSection(sectionId) {
+            sections.forEach(s => s.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            let activeLink;
+            if (sectionId === 'section-layout') activeLink = document.getElementById('nav-layout');
+            else if (sectionId === 'section-settings') activeLink = document.getElementById('nav-settings');
+            else if (sectionId === 'section-footer') activeLink = document.getElementById('nav-footer');
+            else if (sectionId === 'section-hero') activeLink = document.getElementById('nav-hero');
+            else if (sectionId === 'section-small-banners') activeLink = document.getElementById('nav-small-banners');
+            else if (sectionId === 'section-shop-by-cat') activeLink = document.getElementById('nav-shop-by-cat');
+            else if (sectionId === 'section-categories') activeLink = document.getElementById('nav-categories');
+            else if (sectionId === 'section-products') activeLink = document.getElementById('nav-products');
+            else if (sectionId === 'section-promo-banners') activeLink = document.getElementById('nav-promo-banners');
+            else if (sectionId === 'section-carousels') activeLink = document.getElementById('nav-carousels');
+            
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        document.getElementById('nav-layout').onclick = (e) => { e.preventDefault(); showSection('section-layout'); };
+        document.getElementById('nav-settings').onclick = (e) => { e.preventDefault(); showSection('section-settings'); };
+        document.getElementById('nav-footer').onclick = (e) => { e.preventDefault(); showSection('section-footer'); };
+        document.getElementById('nav-hero').onclick = (e) => { e.preventDefault(); showSection('section-hero'); };
+        document.getElementById('nav-small-banners').onclick = (e) => { e.preventDefault(); showSection('section-small-banners'); };
+        document.getElementById('nav-shop-by-cat').onclick = (e) => { e.preventDefault(); showSection('section-shop-by-cat'); };
+        document.getElementById('nav-categories').onclick = (e) => { e.preventDefault(); showSection('section-categories'); };
+        document.getElementById('nav-products').onclick = (e) => { e.preventDefault(); showSection('section-products'); };
+        document.getElementById('nav-promo-banners').onclick = (e) => { e.preventDefault(); showSection('section-promo-banners'); };
+        document.getElementById('nav-carousels').onclick = (e) => { e.preventDefault(); showSection('section-carousels'); };
+
+
+        async function uploadToImgBB(file) {
+            const formData = new FormData();
+            formData.append("image", file);
+
+            try {
+                const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMG_BB_API_KEY}`, {
+                    method: "POST",
+                    body: formData,
+                });
+                const result = await response.json();
+                if (result.success) {
+                    return result.data.display_url; 
+                } else {
+                    throw new Error(result.error.message || 'ImgBB upload failed');
+                }
+            } catch (error) {
+                console.error("ImgBB Upload Error:", error);
+                showMessage(`Image upload failed: ${error.message}`, true);
+                return null;
+            }
+        }
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            setLogLevel('Debug');
+            console.log("Firebase Initialized Successfully");
+        } catch (e) {
+            console.error("Firebase Init Error:", e);
+            showMessage("Firebase connection failed!", true);
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                console.log("User authenticated, checking role for:", user.uid);
+                showLoading(true);
+                try {
+                    const userDocRef = doc(db, usersPath, user.uid); 
+                    const userDocSnap = await getDoc(userDocRef);
+
+                    if (userDocSnap.exists() && userDocSnap.data().role === 'admin') {
+                        console.log("Role check passed: ADMIN");
+                        isAuthReady = true;
+                        document.getElementById('login-overlay').classList.add('hidden');
+                        document.getElementById('admin-panel-content').classList.remove('hidden');
+                        loadCurrentData(); 
+                    } else {
+                        console.log("Role check failed. Signing out.");
+                        showMessage('You are not authorized to access this panel.', true);
+                        await signOut(auth); 
+                    }
+                } catch (error) {
+                    console.error("Role check error:", error);
+                    showMessage('Error checking user role. Signing out.', true);
+                    await signOut(auth);
+                } finally {
+                    showLoading(false);
+                }
+            } else {
+                console.log("User not authenticated.");
+                isAuthReady = false;
+                document.getElementById('login-overlay').classList.remove('hidden');
+                document.getElementById('admin-panel-content').classList.add('hidden');
+            }
+        });
+
+        function loadCurrentData() {
+            if (!isAuthReady) return;
+            loadLayoutManager();
+            loadGeneralSettings();
+            loadFooterContent();
+            loadHeroBanners();
+            loadSmallBanners();
+            loadShopByCategoryBanners(); 
+            loadCategories();
+            loadProducts();
+            loadPromoBanners();
+            loadCarouselNames();
+        }
+        
+        const defaultLayout = [
+            { id: 'heroSlider', name: 'Hero Slider (3)', visible: true },
+            { id: 'popularCategories', name: 'Categories (Circles)', visible: true },
+            { id: 'smallBanners', name: 'Small Ad Banners (3)', visible: true },
+            { id: 'carousel_1', name: 'Product Carousel 1', visible: true },
+            { id: 'shopByCategory', name: 'Category Banners (Grid)', visible: true },
+            { id: 'carousel_2', name: 'Product Carousel 2', visible: true },
+            { id: 'promoBanner1', name: 'Promo Banner 1', visible: true },
+            { id: 'carousel_3', name: 'Product Carousel 3', visible: true },
+        ];
+        
+        let draggedItem = null;
+
+        async function loadLayoutManager() {
+            const listEl = document.getElementById('layout-list');
+            listEl.innerHTML = '';
+            
+            const layoutRef = doc(db, publicDataPath, 'siteContent', 'homepageLayout');
+            let layout = [];
+            
+            try {
+                const docSnap = await getDoc(layoutRef);
+                if (docSnap.exists() && docSnap.data().layout) {
+                    layout = docSnap.data().layout;
+                    const defaultIds = new Set(defaultLayout.map(item => item.id));
+                    const currentIds = new Set(layout.map(item => item.id));
+                    defaultLayout.forEach(defaultItem => {
+                        if (!currentIds.has(defaultItem.id)) {
+                            layout.push(defaultItem);
+                        }
+                    });
+                    layout = layout.filter(item => defaultIds.has(item.id));
+                } else {
+                    layout = defaultLayout;
+                }
+            } catch (e) {
+                console.error("Error loading layout, using default.", e);
+                layout = defaultLayout;
+            }
+            
+            layout.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center justify-between p-4 bg-white border rounded-md shadow-sm';
+                li.setAttribute('draggable', true);
+                li.dataset.id = item.id;
+                
+                li.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-grip-vertical text-gray-400 drag-handle"></i>
+                        <span class="font-semibold text-gray-700">${item.name}</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button class="move-up px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300">&uarr; Up</button>
+                        <button class="move-down px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300">&darr; Down</button>
+                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" id="toggle-${item.id}" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" ${item.visible ? 'checked' : ''} />
+                            <label for="toggle-${item.id}" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                        </div>
+                    </div>
+                `;
+                
+                const toggle = li.querySelector('.toggle-checkbox');
+                toggle.addEventListener('change', () => {
+                    const label = toggle.nextElementSibling;
+                    if (toggle.checked) {
+                        label.classList.remove('bg-gray-300');
+                        label.classList.add('bg-blue-600');
+                    } else {
+                        label.classList.remove('bg-blue-600');
+                        label.classList.add('bg-gray-300');
+                    }
+                });
+                if (toggle.checked) {
+                    toggle.nextElementSibling.classList.add('bg-blue-600');
+                    toggle.nextElementSibling.classList.remove('bg-gray-300');
+                }
+                
+                listEl.appendChild(li);
+            });
+            
+            addDragListeners();
+            addMoveButtonListeners();
+        }
+        
+        function addDragListeners() {
+            const listEl = document.getElementById('layout-list');
+            listEl.addEventListener('dragstart', (e) => {
+                draggedItem = e.target;
+                setTimeout(() => e.target.classList.add('dragging'), 0);
+            });
+            
+            listEl.addEventListener('dragend', (e) => {
+                draggedItem.classList.remove('dragging');
+                draggedItem = null;
+            });
+            
+            listEl.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const afterElement = getDragAfterElement(listEl, e.clientY);
+                if (afterElement == null) {
+                    listEl.appendChild(draggedItem);
+                } else {
+                    listEl.insertBefore(draggedItem, afterElement);
+                }
+            });
+        }
+        
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function addMoveButtonListeners() {
+            document.querySelectorAll('#layout-list .move-up').forEach(btn => {
+                btn.onclick = (e) => {
+                    const li = e.target.closest('li');
+                    const prevLi = li.previousElementSibling;
+                    if(prevLi) {
+                        li.parentNode.insertBefore(li, prevLi);
+                    }
+                };
+            });
+            document.querySelectorAll('#layout-list .move-down').forEach(btn => {
+                btn.onclick = (e) => {
+                    const li = e.target.closest('li');
+                    const nextLi = li.nextElementSibling;
+                    if(nextLi) {
+                        li.parentNode.insertBefore(nextLi, li);
+                    }
+                };
+            });
+        }
+
+        document.getElementById('save-layout-btn').onclick = async () => {
+            showLoading(true);
+            const listItems = document.querySelectorAll('#layout-list li');
+            const newLayout = [];
+            
+            listItems.forEach(li => {
+                const id = li.dataset.id;
+                const name = li.querySelector('span').textContent;
+                const visible = li.querySelector('.toggle-checkbox').checked;
+                newLayout.push({ id, name, visible });
+            });
+            
+            try {
+                const layoutRef = doc(db, publicDataPath, 'siteContent', 'homepageLayout');
+                await setDoc(layoutRef, { layout: newLayout });
+                showMessage('Layout saved successfully!');
+            } catch (error) {
+                console.error("Error saving layout: ", error);
+                showMessage('Error saving layout.', true);
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        // =================== JAVASCRIPT FUNCTIONS WENAS KALA ===================
+
+        async function loadHeroBanners() {
+            const placeholder_pc = (i) => `https://placehold.co/1200x400/e2e8f0/94a3b8?text=PC+Banner+${i}`;
+            const placeholder_tab = (i) => `https://placehold.co/800x600/e2e8f0/94a3b8?text=Tab+Banner+${i}`;
+            const placeholder_mob = (i) => `https://placehold.co/600x800/e2e8f0/94a3b8?text=Mob+Banner+${i}`;
+
+            for (let i = 1; i <= 3; i++) {
+                const docRef = doc(db, publicDataPath, 'siteContent', `heroBanner${i}`);
+                try {
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        // New fields first, then fallback to old 'imageUrl', then fallback to placeholder
+                        document.getElementById(`hero${i}-img-pc`).src = data.imageUrl_pc || data.imageUrl || placeholder_pc(i);
+                        document.getElementById(`hero${i}-img-tab`).src = data.imageUrl_tab || data.imageUrl || placeholder_tab(i);
+                        document.getElementById(`hero${i}-img-mob`).src = data.imageUrl_mob || data.imageUrl || placeholder_mob(i);
+                        
+                        document.getElementById(`hero${i}-link`).value = data.linkUrl || '';
+                    } else {
+                        // Set placeholders if doc doesn't exist
+                        document.getElementById(`hero${i}-img-pc`).src = placeholder_pc(i);
+                        document.getElementById(`hero${i}-img-tab`).src = placeholder_tab(i);
+                        document.getElementById(`hero${i}-img-mob`).src = placeholder_mob(i);
+                    }
+                } catch (e) { 
+                    console.error(`Error loading hero banner ${i}: `, e);
+                    document.getElementById(`hero${i}-img-pc`).src = placeholder_pc(i);
+                    document.getElementById(`hero${i}-img-tab`).src = placeholder_tab(i);
+                    document.getElementById(`hero${i}-img-mob`).src = placeholder_mob(i);
+                }
+            }
+        }
+
+        async function handleHeroBannerSave(e, bannerNum) {
+            e.preventDefault();
+            if (!isAuthReady) return showMessage('Not authenticated', true);
+            showLoading(true);
+            
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Saving...';
+
+            try {
+                const linkUrl = document.getElementById(`hero${bannerNum}-link`).value;
+                const pcFile = document.getElementById(`hero${bannerNum}-file-pc`).files[0];
+                const tabFile = document.getElementById(`hero${bannerNum}-file-tab`).files[0];
+                const mobFile = document.getElementById(`hero${bannerNum}-file-mob`).files[0];
+
+                const docRef = doc(db, publicDataPath, 'siteContent', `heroBanner${bannerNum}`);
+                const docSnap = await getDoc(docRef);
+                const dataToSave = docSnap.exists() ? docSnap.data() : {};
+
+                dataToSave.linkUrl = linkUrl;
+                
+                // Remove old 'imageUrl' if it exists
+                if (dataToSave.imageUrl) {
+                    delete dataToSave.imageUrl;
+                }
+
+                if (pcFile) {
+                    submitButton.textContent = 'Uploading PC Image...';
+                    dataToSave.imageUrl_pc = await uploadToImgBB(pcFile);
+                    if (!dataToSave.imageUrl_pc) throw new Error('PC Image upload failed.');
+                }
+                
+                if (tabFile) {
+                    submitButton.textContent = 'Uploading Tablet Image...';
+                    dataToSave.imageUrl_tab = await uploadToImgBB(tabFile);
+                    if (!dataToSave.imageUrl_tab) throw new Error('Tablet Image upload failed.');
+                }
+                
+                if (mobFile) {
+                    submitButton.textContent = 'Uploading Mobile Image...';
+                    dataToSave.imageUrl_mob = await uploadToImgBB(mobFile);
+                    if (!dataToSave.imageUrl_mob) throw new Error('Mobile Image upload failed.');
+                }
+                
+                submitButton.textContent = 'Saving Data...';
+                await setDoc(docRef, dataToSave);
+
+                // Update previews with new data
+                if (dataToSave.imageUrl_pc) document.getElementById(`hero${bannerNum}-img-pc`).src = dataToSave.imageUrl_pc;
+                if (dataToSave.imageUrl_tab) document.getElementById(`hero${bannerNum}-img-tab`).src = dataToSave.imageUrl_tab;
+                if (dataToSave.imageUrl_mob) document.getElementById(`hero${bannerNum}-img-mob`).src = dataToSave.imageUrl_mob;
+                
+                // Clear file inputs
+                document.getElementById(`hero${bannerNum}-file-pc`).value = null;
+                document.getElementById(`hero${bannerNum}-file-tab`).value = null;
+                document.getElementById(`hero${bannerNum}-file-mob`).value = null;
+
+                showMessage(`Hero Banner ${bannerNum} updated!`);
+
+            } catch (error) { 
+                showMessage(`Error: ${error.message}`, true); 
+            } finally { 
+                showLoading(false); 
+                submitButton.disabled = false;
+                submitButton.textContent = `Save Banner ${bannerNum}`;
+            }
+        }
+        
+        document.getElementById('form-hero1').onsubmit = (e) => handleHeroBannerSave(e, 1);
+        document.getElementById('form-hero2').onsubmit = (e) => handleHeroBannerSave(e, 2);
+        document.getElementById('form-hero3').onsubmit = (e) => handleHeroBannerSave(e, 3);
+
+        // =================== JAVASCRIPT FUNCTIONS WENAS KALA IWARAI ===================
+
+        async function loadSmallBanners() {
+            const bannerIds = ['smallBanner1', 'smallBanner2', 'smallBanner3'];
+            for (let i = 0; i < bannerIds.length; i++) {
+                const id = bannerIds[i];
+                const docRef = doc(db, publicDataPath, 'siteContent', id);
+                try {
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        document.getElementById(`current-${id}-img`).src = data.imageUrl || `https://placehold.co/400x200/e2e8f0/94a3b8?text=Banner+${i+1}`;
+                        document.getElementById(`${id}-link`).value = data.linkUrl || '';
+                    }
+                } catch (e) { console.error(`Error loading ${id}: `, e); }
+            }
+        }
+
+        function loadShopByCategoryBanners() {
+            const collRef = collection(db, publicDataPath, 'shopByCategoryBanners');
+            const listEl = document.getElementById('shop-by-cat-list');
+            
+            onSnapshot(collRef, (querySnapshot) => {
+                listEl.innerHTML = ''; 
+                if (querySnapshot.empty) {
+                    listEl.innerHTML = '<p class="text-gray-500">No category banners added yet.</p>';
+                    return;
+                }
+                querySnapshot.forEach((doc) => {
+                    const banner = doc.data();
+                    const el = document.createElement('div');
+                    el.className = 'border rounded-lg p-3 shadow';
+                    el.innerHTML = `
+                        <img src="${banner.imageUrl}" alt="Banner" class="w-full h-32 object-contain rounded-md mb-2 bg-gray-100">
+                        <p class="font-semibold text-sm truncate" title="${banner.linkUrl}">Link: ${banner.linkUrl}</p>
+                        <p class="text-gray-600 text-sm">Size: <span class="font-bold">${banner.size}</span></p>
+                        <button data-id="${doc.id}" class="delete-shop-by-cat mt-2 w-full text-xs text-red-500 hover:text-red-700 border border-red-300 rounded py-1">Delete</button>
+                    `;
+                    listEl.appendChild(el);
+                });
+
+                listEl.querySelectorAll('.delete-shop-by-cat').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        const id = e.target.dataset.id;
+                        if (confirm('Delete this banner?')) {
+                            try {
+                                showLoading(true);
+                                await deleteDoc(doc(db, publicDataPath, 'shopByCategoryBanners', id));
+                                showMessage('Banner deleted!');
+                            } catch (error) { showMessage(`Error deleting: ${error.message}`, true); } finally { showLoading(false); }
+                        }
+                    };
+                });
+            }, (error) => {
+                console.error("Error loading category banners: ", error);
+                listEl.innerHTML = '<p class="text-red-500">Error loading banners.</p>';
+            });
+        }
+
+        function loadCategories() {
+            const collRef = collection(db, publicDataPath, 'categories');
+            const listEl = document.getElementById('categories-list');
+            
+            onSnapshot(collRef, (querySnapshot) => {
+                listEl.innerHTML = ''; 
+                if (querySnapshot.empty) {
+                    listEl.innerHTML = '<p class="text-gray-500">No categories added yet.</p>';
+                    return;
+                }
+                querySnapshot.forEach((doc) => {
+                    const category = doc.data();
+                    const el = document.createElement('div');
+                    el.className = 'border rounded-lg p-2 text-center shadow';
+                    el.innerHTML = `
+                        <img src="${category.imageUrl}" alt="${category.name}" class="w-20 h-20 object-cover rounded-full mx-auto mb-2" style="background-color: ${category.color || '#FFFFFF'}">
+                        <p class="font-semibold text-sm">${category.name}</p>
+                        <button data-id="${doc.id}" class="delete-category mt-1 text-xs text-red-500 hover:text-red-700">Delete</button>
+                    `;
+                    listEl.appendChild(el);
+                });
+
+                listEl.querySelectorAll('.delete-category').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        const id = e.target.dataset.id;
+                        if (confirm('Delete this category?')) {
+                            try {
+                                showLoading(true);
+                                await deleteDoc(doc(db, publicDataPath, 'categories', id));
+                                showMessage('Category deleted!');
+                            } catch (error) { showMessage(`Error deleting: ${error.message}`, true); } finally { showLoading(false); }
+                        }
+                    };
+                });
+            });
+        }
+
+        function loadProducts() {
+            const collRef = collection(db, publicDataPath, 'products');
+            const listEl = document.getElementById('products-list');
+
+            onSnapshot(collRef, (querySnapshot) => {
+                listEl.innerHTML = ''; 
+                if (querySnapshot.empty) {
+                    listEl.innerHTML = '<p class="text-gray-500">No products added yet.</p>';
+                    return;
+                }
+                querySnapshot.forEach((doc) => {
+                    const product = doc.data();
+                    const el = document.createElement('div');
+                    el.className = 'border rounded-lg p-3 shadow';
+                    el.innerHTML = `
+                        <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-32 object-contain rounded-md mb-2 bg-gray-100">
+                        <p class="font-semibold text-sm">${product.name}</p>
+                        <p class="text-green-600 font-bold">Rs. ${product.price} ${product.priceUSDT ? `/ $${product.priceUSDT.toFixed(2)}` : ''}</p>
+                        ${product.originalPrice ? `<p class="text-gray-500 line-through text-xs">Rs. ${product.originalPrice} ${product.originalPriceUSDT ? `/ $${product.originalPriceUSDT.toFixed(2)}` : ''}</p>` : ''}
+                        ${product.saleTag ? `<p class="text-red-500 font-bold text-xs">${product.saleTag}</p>` : ''}
+                        <p class="text-xs text-gray-500 mt-1">Carousels: ${product.carousels && product.carousels.length > 0 ? product.carousels.join(', ') : 'None'}</p>
+                        <button data-id="${doc.id}" class="delete-product mt-2 w-full text-xs text-red-500 hover:text-red-700 border border-red-300 rounded py-1">Delete</button>
+                    `;
+                    listEl.appendChild(el);
+                });
+
+                listEl.querySelectorAll('.delete-product').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        const id = e.target.dataset.id;
+                        if (confirm('Delete this product?')) {
+                            try {
+                                showLoading(true);
+                                await deleteDoc(doc(db, publicDataPath, 'products', id));
+                                showMessage('Product deleted!');
+                            } catch (error) { showMessage(`Error deleting: ${error.message}`, true); } finally { showLoading(false); }
+                        }
+                    };
+                });
+            });
+        }
+        
+        async function loadGeneralSettings() {
+            const docRef = doc(db, publicDataPath, 'siteContent', 'config');
+            try {
+                const docSnap = await getDoc(docRef);
+                let config = {};
+                if (docSnap.exists()) config = docSnap.data();
+                
+                document.getElementById('site-logo-text').value = config.logoText || 'TSM CEYLON';
+                document.getElementById('site-hotline').value = config.headerHotline || '011 2001122';
+                
+                const rate = config.exchangeRate || 300.0;
+                document.getElementById('site-exchange-rate').value = rate;
+                currentExchangeRate = parseFloat(rate);
+                
+                const color = config.backgroundColor || '#f8f8f8';
+                document.getElementById('site-bg-color').value = color;
+                document.getElementById('site-bg-color-hex').value = color;
+                
+            } catch (e) { console.error("Error loading site settings: ", e); }
+        }
+        
+        async function loadFooterContent() {
+            const contactRef = doc(db, publicDataPath, 'siteContent', 'footerContact');
+            try {
+                const docSnap = await getDoc(contactRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('footer-address').value = data.address || '';
+                    document.getElementById('footer-email').value = data.email || '';
+                    document.getElementById('footer-hotline').value = data.hotline || '';
+                    document.getElementById('footer-facebook-url').value = data.facebookUrl || '';
+                    document.getElementById('footer-youtube-url').value = data.youtubeUrl || '';
+                    document.getElementById('footer-instagram-url').value = data.instagramUrl || '';
+                }
+            } catch (e) { console.error("Error loading footer contact: ", e); }
+
+            const linksRef = collection(db, publicDataPath, 'footerLinks');
+            onSnapshot(linksRef, (querySnapshot) => {
+                const lists = {
+                    col_tsmgroup: document.getElementById('list-col_tsmgroup'),
+                    col_info: document.getElementById('list-col_info'),
+                    col_quicklinks: document.getElementById('list-col_quicklinks')
+                };
+                Object.values(lists).forEach(list => list.innerHTML = ''); 
+
+                if (querySnapshot.empty) return;
+                
+                querySnapshot.forEach((doc) => {
+                    const link = doc.data();
+                    const li = document.createElement('li');
+                    li.className = 'flex justify-between items-center text-sm text-gray-700 p-1 bg-gray-50 rounded';
+                    li.innerHTML = `
+                        <span class="truncate" title="${link.url}">${link.text}</span>
+                        <button data-id="${doc.id}" class="delete-footer-link text-red-500 hover:text-red-700 text-xs px-2">[Delete]</button>
+                    `;
+                    
+                    if (lists[link.column]) {
+                        lists[link.column].appendChild(li);
+                    }
+                });
+                
+                document.querySelectorAll('.delete-footer-link').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        const id = e.target.dataset.id;
+                        if (confirm('Delete this footer link?')) {
+                            try {
+                                await deleteDoc(doc(db, publicDataPath, 'footerLinks', id));
+                                showMessage('Link deleted');
+                            } catch (err) { showMessage('Error deleting link', true); }
+                        }
+                    };
+                });
+            });
+        }
+        
+        async function loadPromoBanners() {
+            const docRef = doc(db, publicDataPath, 'siteContent', 'promoBanner1');
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('promo1-img').src = data.imageUrl || 'https://placehold.co/1200x250/e2e8f0/94a3b8?text=No+Image';
+                    document.getElementById('promo1-link').value = data.linkUrl || '';
+                }
+            } catch (e) { console.error("Error loading promo banner 1: ", e); }
+        }
+
+        async function loadCarouselNames() {
+            const ids = ['carousel_1', 'carousel_2', 'carousel_3'];
+            for (let i = 0; i < ids.length; i++) {
+                const id = ids[i];
+                const inputEl = document.getElementById(`carousel-${i+1}-name`);
+                const labelEl = document.getElementById(`label-carousel-${i+1}`);
+                
+                const docRef = doc(db, publicDataPath, 'productCarousels', id);
+                try {
+                    const docSnap = await getDoc(docRef);
+                    let title = `Carousel ${i+1}`;
+                    if (docSnap.exists() && docSnap.data().title) {
+                        title = docSnap.data().title;
+                    }
+                    if(inputEl) inputEl.value = title;
+                    if(labelEl) labelEl.textContent = title;
+                } catch (e) {
+                    console.error(`Error loading carousel name ${id}: `, e);
+                    if(labelEl) labelEl.textContent = `Carousel ${i+1}`;
+                }
+            }
+        }
+
+        // --- FORM SUBMISSIONS ---
+
+        async function handleSmallBannerSave(e, bannerId) {
+            e.preventDefault();
+            if (!isAuthReady) return showMessage('Not authenticated', true);
+            showLoading(true);
+
+            const file = document.getElementById(`${bannerId}-file`).files[0];
+            const linkUrl = document.getElementById(`${bannerId}-link`).value;
+            let imageUrl = document.getElementById(`current-${bannerId}-img`).src;
+
+            try {
+                if (file) {
+                    const newImageUrl = await uploadToImgBB(file);
+                    if (newImageUrl) { imageUrl = newImageUrl; } else { throw new Error("Image upload failed"); }
+                }
+                const docRef = doc(db, publicDataPath, 'siteContent', bannerId); 
+                await setDoc(docRef, { imageUrl, linkUrl }, { merge: true });
+                document.getElementById(`current-${bannerId}-img`).src = imageUrl;
+                showMessage(`${bannerId} updated!`);
+            } catch (error) { showMessage(`Error: ${error.message}`, true); } finally { showLoading(false); }
+        }
+        
+        document.getElementById('form-small-banner1').onsubmit = (e) => handleSmallBannerSave(e, 'smallBanner1');
+        document.getElementById('form-small-banner2').onsubmit = (e) => handleSmallBannerSave(e, 'smallBanner2');
+        document.getElementById('form-small-banner3').onsubmit = (e) => handleSmallBannerSave(e, 'smallBanner3');
+
+        document.getElementById('form-add-shop-by-cat').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!isAuthReady) return showMessage('Not authenticated', true);
+
+            const file = document.getElementById('shop-by-cat-file').files[0];
+            const linkUrl = document.getElementById('shop-by-cat-link').value;
+            const size = document.getElementById('shop-by-cat-size').value;
+
+            if (!file || !linkUrl) {
+                return showMessage('Please provide image, link, and size.', true);
+            }
+            showLoading(true);
+            try {
+                const imageUrl = await uploadToImgBB(file);
+                if (!imageUrl) throw new Error("Image upload failed.");
+                const collRef = collection(db, publicDataPath, 'shopByCategoryBanners');
+                await addDoc(collRef, { imageUrl, linkUrl, size });
+                showMessage('Category banner added!');
+                e.target.reset(); 
+            } catch (error) { showMessage(`Error: ${error.message}`, true); } finally { showLoading(false); }
+        };
+
+
+        document.getElementById('form-add-category').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!isAuthReady) return showMessage('Not authenticated', true);
+
+            const name = document.getElementById('category-name').value;
+            const file = document.getElementById('category-file').files[0];
+            const color = document.getElementById('category-color').value; 
+
+            if (!name || !file) {
+                return showMessage('Please provide both name and image.', true);
+            }
+            showLoading(true);
+            try {
+                const imageUrl = await uploadToImgBB(file);
+                if (!imageUrl) throw new Error("Image upload failed.");
+                const collRef = collection(db, publicDataPath, 'categories');
+                await addDoc(collRef, { name, imageUrl, color: color }); 
+                showMessage('Category added!');
+                e.target.reset(); 
+                document.getElementById('category-color').value = '#FFFFFF'; 
+            } catch (error) { showMessage(`Error: ${error.message}`, true); } finally { showLoading(false); }
+        };
+
+        document.getElementById('form-add-product').onsubmit = async (e) => {
+            e.preventDefault();
+            const submitButton = document.getElementById('add-product-btn');
+            
+            const name = document.getElementById('product-name').value;
+            const file = document.getElementById('product-file').files[0];
+            const price = parseFloat(document.getElementById('product-price').value);
+
+            if (!name || !file || !price) {
+                return showMessage('Please provide name, image, and price.', true);
+            }
+            
+            const carousels = [];
+            if (document.getElementById('product-carousel-1').checked) carousels.push('carousel_1');
+            if (document.getElementById('product-carousel-2').checked) carousels.push('carousel_2');
+            if (document.getElementById('product-carousel-3').checked) carousels.push('carousel_3');
+
+            showLoading(true);
+            submitButton.disabled = true;
+            submitButton.textContent = 'Uploading Image...';
+
+            try {
+                const imageUrl = await uploadToImgBB(file);
+                if (!imageUrl) throw new Error("Image upload failed.");
+
+                submitButton.textContent = 'Saving Product...';
+
+                const productData = {
+                    name,
+                    imageUrl,
+                    price,
+                    priceUSDT: parseFloat(document.getElementById('product-price-usdt').value) || null,
+                    originalPrice: parseFloat(document.getElementById('product-original-price').value) || null,
+                    originalPriceUSDT: parseFloat(document.getElementById('product-original-price-usdt').value) || null,
+                    saleTag: document.getElementById('product-sale-tag').value || null,
+                    categories: document.getElementById('product-categories').value || null,
+                    description: document.getElementById('product-description').value || null,
+                    carousels: carousels
+                };
+                
+                if (!productData.originalPrice) delete productData.originalPrice;
+                if (!productData.originalPriceUSDT) delete productData.originalPriceUSDT;
+                if (!productData.priceUSDT) delete productData.priceUSDT;
+                if (!productData.saleTag) delete productData.saleTag;
+                if (!productData.categories) delete productData.categories;
+                if (!productData.description) delete productData.description;
+
+                const collRef = collection(db, publicDataPath, 'products');
+                await addDoc(collRef, productData);
+
+                showMessage('Product added!');
+                e.target.reset(); 
+
+            } catch (error) { showMessage(`Error: ${error.message}`, true); } finally {
+                showLoading(false);
+                submitButton.disabled = false;
+                submitButton.textContent = 'Add Product';
+            }
+        };
+        
+        document.getElementById('form-site-settings').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!isAuthReady) return showMessage('Not authenticated', true);
+            showLoading(true);
+            
+            const configData = {
+                logoText: document.getElementById('site-logo-text').value,
+                headerHotline: document.getElementById('site-hotline').value,
+                backgroundColor: document.getElementById('site-bg-color-hex').value,
+                exchangeRate: parseFloat(document.getElementById('site-exchange-rate').value) || 300.0
+            };
+
+            try {
+                const docRef = doc(db, publicDataPath, 'siteContent', 'config');
+                await setDoc(docRef, configData, { merge: true });
+                currentExchangeRate = configData.exchangeRate; 
+                showMessage('General settings updated!');
+            } catch (error) { showMessage(`Error: ${error.message}`, true); } finally { showLoading(false); }
+        };
+
+        async function handlePromoBannerSave(e, bannerId) {
+            e.preventDefault();
+            if (!isAuthReady) return showMessage('Not authenticated', true);
+            showLoading(true);
+
+            const file = document.getElementById(`promo1-file`).files[0];
+            const linkUrl = document.getElementById(`promo1-link`).value;
+            let imageUrl = document.getElementById(`promo1-img`).src;
+
+            try {
+                if (file) {
+                    const newImageUrl = await uploadToImgBB(file);
+                    if (newImageUrl) imageUrl = newImageUrl;
+                    else throw new Error("Image upload failed");
+                }
+                const docRef = doc(db, publicDataPath, 'siteContent', bannerId); 
+                await setDoc(docRef, { imageUrl, linkUrl }, { merge: true });
+                document.getElementById(`promo1-img`).src = imageUrl;
+                showMessage(`${bannerId} updated!`);
+            } catch (error) { showMessage(`Error: ${error.message}`, true); } finally { showLoading(false); }
+        }
+        document.getElementById('form-promo1').onsubmit = (e) => handlePromoBannerSave(e, 'promoBanner1');
+
+        document.getElementById('form-save-carousels').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!isAuthReady) return showMessage('Not authenticated', true);
+            showLoading(true);
+            
+            try {
+                const name1 = document.getElementById('carousel-1-name').value;
+                const name2 = document.getElementById('carousel-2-name').value;
+                const name3 = document.getElementById('carousel-3-name').value;
+
+                const docRef1 = doc(db, publicDataPath, 'productCarousels', 'carousel_1');
+                await setDoc(docRef1, { title: name1 }, { merge: true });
+                
+                const docRef2 = doc(db, publicDataPath, 'productCarousels', 'carousel_2');
+                await setDoc(docRef2, { title: name2 }, { merge: true });
+
+                const docRef3 = doc(db, publicDataPath, 'productCarousels', 'carousel_3');
+                await setDoc(docRef3, { title: name3 }, { merge: true });
+
+                showMessage('Carousel titles updated!');
+                loadCarouselNames(); 
+                
+            } catch (error) { showMessage(`Error: ${error.message}`, true); } finally { showLoading(false); }
+        };
+
+        document.getElementById('form-footer-contact').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!isAuthReady) return showMessage('Not authenticated', true);
+            showLoading(true);
+
+            const contactData = {
+                address: document.getElementById('footer-address').value,
+                email: document.getElementById('footer-email').value,
+                hotline: document.getElementById('footer-hotline').value,
+                facebookUrl: document.getElementById('footer-facebook-url').value,
+                youtubeUrl: document.getElementById('footer-youtube-url').value,
+                instagramUrl: document.getElementById('footer-instagram-url').value
+            };
+
+            try {
+                const docRef = doc(db, publicDataPath, 'siteContent', 'footerContact');
+                await setDoc(docRef, contactData, { merge: true });
+                showMessage('Footer contact info saved!');
+            } catch (error) { showMessage(`Error: ${error.message}`, true); } finally { showLoading(false); }
+        };
+        
+        document.getElementById('form-add-footer-link').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!isAuthReady) return showMessage('Not authenticated', true);
+
+            const linkData = {
+                text: document.getElementById('footer-link-text').value,
+                url: document.getElementById('footer-link-url').value,
+                column: document.getElementById('footer-link-column').value
+            };
+
+            if (!linkData.text || !linkData.url) {
+                return showMessage("Please enter link text and URL.", true);
+            }
+            
+            try {
+                const collRef = collection(db, publicDataPath, 'footerLinks');
+                await addDoc(collRef, linkData);
+                showMessage('Footer link added!');
+                e.target.reset();
+            } catch (error) { showMessage(`Error: ${error.message}`, true); }
+        };
+
+        const colorPicker = document.getElementById('site-bg-color');
+        const colorHex = document.getElementById('site-bg-color-hex');
+        
+        colorPicker.oninput = (e) => { colorHex.value = e.target.value; };
+        colorHex.oninput = (e) => {
+            if (e.target.value.startsWith('#') && e.target.value.length === 7) {
+                 colorPicker.value = e.target.value;
+            } else if (e.target.value.length === 6 && !e.target.value.startsWith('#')) {
+                 colorPicker.value = '#' + e.target.value;
+            }
+        };
+
+        const lkrPriceEl = document.getElementById('product-price');
+        const usdtPriceEl = document.getElementById('product-price-usdt');
+        const lkrOrigPriceEl = document.getElementById('product-original-price');
+        const usdtOrigPriceEl = document.getElementById('product-original-price-usdt');
+
+        function calculateUSD() {
+            const lkrPrice = parseFloat(lkrPriceEl.value);
+            if (lkrPrice > 0 && currentExchangeRate > 0) {
+                usdtPriceEl.value = (lkrPrice / currentExchangeRate).toFixed(2);
+            } else {
+                usdtPriceEl.value = '';
+            }
+            
+            const lkrOrigPrice = parseFloat(lkrOrigPriceEl.value);
+            if (lkrOrigPrice > 0 && currentExchangeRate > 0) {
+                usdtOrigPriceEl.value = (lkrOrigPrice / currentExchangeRate).toFixed(2);
+            } else {
+                usdtOrigPriceEl.value = '';
+            }
+        }
+        
+        lkrPriceEl.addEventListener('input', calculateUSD);
+        lkrOrigPriceEl.addEventListener('input', calculateUSD);
+        
+        document.getElementById('site-exchange-rate').addEventListener('input', (e) => {
+            currentExchangeRate = parseFloat(e.target.value) || 300.00;
+            calculateUSD();
+        });
+
+
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            showLoading(true);
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                showMessage(error.message, true);
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        document.getElementById('logout-button').onclick = async (e) => {
+            e.preventDefault();
+            if (confirm('Are you sure you want to sign out?')) {
+                try {
+                    await signOut(auth);
+                    showMessage('Signed out successfully.');
+                } catch (error) { showMessage(`Sign out error: ${error.message}`, true); }
+            }
+        };
+        
+        showSection('section-layout'); 
+        
+    </script>
+</body>
+</html>

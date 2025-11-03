@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - TSM CEYLON</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'tsm-green': {
+                            light: '#eaf7e3',
+                            DEFAULT: '#65a30d',
+                            dark: '#4d7c0f',
+                        },
+                        'tsm-gray': {
+                            light: '#f8f8f8',
+                            DEFAULT: '#e5e5e5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        body {
+            @apply font-sans text-gray-800;
+        }
+        
+        /* Drawer Styles */
+        .drawer-overlay {
+            @apply fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity opacity-0 pointer-events-none;
+        }
+        .drawer-content {
+            @apply fixed top-0 right-0 h-full bg-white shadow-xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out;
+            width: 90%;
+            max-width: 400px;
+        }
+        .drawer-content.left {
+            @apply left-0 right-auto transform -translate-x-full;
+        }
+        .drawer.open .drawer-overlay {
+            @apply opacity-100 pointer-events-auto;
+        }
+        .drawer.open .drawer-content {
+            @apply transform translate-x-0;
+        }
+        .mobile-nav-link.active {
+            @apply text-tsm-green;
+        }
+
+        /* Quantity input buttons hide karanna */
+        input[type='number']::-webkit-inner-spin-button,
+        input[type='number']::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type='number'] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-tsm-gray-light pb-20 md:pb-0">
+
+    <header class="bg-white shadow-md sticky top-0 z-40 hidden md:block">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-3xl font-bold text-tsm-green-dark">
+                TSM CEYLON
+            </a>
+            <div class="flex-grow max-w-xl mx-4">
+                <form class="flex">
+                    <input type="text" placeholder="Search for anything..." class="w-full px-4 py-2 border border-tsm-gray-DEFAULT rounded-l-md focus:outline-none focus:ring-2 focus:ring-tsm-green">
+                    <button type="submit" class="bg-tsm-green text-white px-4 py-2 rounded-r-md hover:bg-tsm-green-dark">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div class="text-right">
+                    <div class="text-sm font-semibold">Happiness Hotline</div>
+                    <div class="text-lg font-bold text-tsm-green-dark">011 2001122</div>
+                </div>
+                <a href="account.html" class="flex flex-col items-center text-gray-600 hover:text-tsm-green">
+                    <i class="fa fa-user text-xl"></i>
+                    <span class="text-xs">Account</span>
+                </a>
+                <a href="#" id="desktop-cart-btn" class="flex flex-col items-center text-gray-600 hover:text-tsm-green relative">
+                    <i class="fa fa-shopping-cart text-xl"></i>
+                    <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5">0</span>
+                    <span class="text-xs">Cart</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-tsm-green-light shadow-sm hidden md:block">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+             <div class="flex space-x-6">
+                <div class="relative group">
+                    <a href="#" class="flex items-center bg-tsm-green text-white px-4 py-2.5 rounded-t-md font-bold">
+                        <i class="fa fa-bars mr-2"></i>
+                        Categories
+                        <i class="fa fa-chevron-down text-xs ml-2"></i>
+                    </a>
+                    <div class="dropdown-menu hidden absolute left-0 top-full w-56 bg-white shadow-lg rounded-b-md z-40 group-hover:block">
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Flowers</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Cakes & Bakes</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Supermarket</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Pharmacy</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Money Delivery</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block">Daily Deals</a>
+                    </div>
+                </div>
+                <a href="shop.html" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Shop</a>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Flowers</a>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Cakes & Bakes</a>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Supermarket</a>
+            </div>
+            <a href="#" class="bg-tsm-green-dark text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-tsm-green">
+                Order Status
+            </a>
+        </div>
+    </nav>
+
+    <header class="bg-white shadow-md sticky top-0 z-40 flex md:hidden items-center justify-between p-4">
+        <button id="mobile-menu-btn" class="text-2xl text-gray-700">
+            <i class="fa fa-bars"></i>
+        </button>
+        <a href="index.html" class="text-2xl font-bold text-tsm-green-dark">
+            TSM CEYLON
+        </a>
+        <div class="w-8"></div> </header>
+
+    <main class="container mx-auto px-4 py-8">
+
+        <nav class="text-sm text-gray-600 mb-4">
+            <a href="index.html" class="hover:underline">Home</a> &gt; 
+            <span class="font-bold">Shopping Cart</span>
+        </nav>
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Shopping Cart</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            
+            <section class="md:col-span-3 space-y-4">
+                
+                <div id="cart-header" class="hidden md:flex bg-white p-4 rounded-lg shadow-sm font-bold text-gray-600">
+                    <div class="w-2/5">Product</div>
+                    <div class="w-1/5 text-center">Price</div>
+                    <div class="w-1/5 text-center">Quantity</div>
+                    <div class="w-1/5 text-right">Subtotal</div>
+                </div>
+
+                <div id="cart-items-container" class="space-y-4">
+                    </div>
+
+                <div id="cart-empty-message" class="bg-white p-6 rounded-lg shadow-lg text-center hidden">
+                    <i class="fa fa-shopping-cart text-5xl text-gray-300 mb-4"></i>
+                    <h2 class="text-2xl font-bold mb-2">Your Cart is Empty</h2>
+                    <p class="text-gray-600 mb-6">Looks like you haven't added anything to your cart yet.</p>
+                    <a href="shop.html" class="bg-tsm-green text-white py-3 px-6 rounded-md font-bold text-lg hover:bg-tsm-green-dark transition-colors">
+                        Continue Shopping
+                    </a>
+                </div>
+
+            </section>
+
+            <aside class="md:col-span-1">
+                <div class="bg-white p-6 rounded-lg shadow-lg h-fit md:sticky md:top-24">
+                    <h3 class="text-xl font-bold mb-4 border-b pb-2">Order Summary</h3>
+                    
+                    <div class="space-y-3 mb-4">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Subtotal (<span id="cart-item-count">0</span> items)</span>
+                            <span class="font-bold">Rs. <span id="cart-subtotal">0.00</span></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Shipping</span>
+                            <span class="font-bold text-sm">Calculated later</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="coupon" class="block text-sm font-medium text-gray-700 mb-1">Coupon Code</label>
+                        <div class="flex">
+                            <input type="text" id="coupon" placeholder="Enter code" class="w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-tsm-green focus:border-tsm-green">
+                            <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-r-md font-semibold hover:bg-gray-300">Apply</button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between font-bold text-xl pt-4 border-t mt-4">
+                        <span>Total</span>
+                        <span>Rs. <span id="cart-total-price">0.00</span></span>
+                    </div>
+                    
+                    <a href="checkout.html" class="block text-center w-full mt-6 bg-tsm-green text-white py-3 px-6 rounded-md font-bold text-lg hover:bg-tsm-green-dark transition-colors">
+                        Proceed to Checkout
+                    </a>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 pt-16 pb-8 mt-16 hidden md:block">
+         <div class="container mx-auto px-4">
+            <div class="bg-gray-700 p-8 rounded-lg -mt-28 mb-16 relative z-10 shadow-xl flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-2">SUBSCRIBE TO US</h3>
+                    <p class="text-gray-300">Get the first look at exclusive offers, promotions, and more.</p>
+                </div>
+                <form class="flex w-full max-w-md">
+                    <input type="email" placeholder="Email Address" class="w-full px-4 py-3 rounded-l-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-tsm-green">
+                    <button type="submit" class="bg-tsm-green text-white px-6 py-3 rounded-r-md font-bold hover:bg-tsm-green-dark">
+                        SUBSCRIBE
+                    </button>
+                </form>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-6 text-sm text-center md:flex justify-between">
+                <p>&copy; 2025 TSM.com (Pvt) Ltd. All Rights reserved.</p>
+                <div class="space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white">TERMS & CONDITIONS</a>
+                    <span>|</span>
+                    <a href="#" class="hover:text-white">PRIVACY POLICY</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <nav class="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 shadow-lg flex justify-around items-center z-40 md:hidden">
+        <a href="index.html" class="mobile-nav-link flex flex-col items-center justify-center text-gray-600 hover:text-tsm-green text-xs w-1/4">
+            <i class="fa fa-store text-xl"></i>
+            <span class="mt-1">Shop</span>
+        </a>
+        <a href="#" class="mobile-nav-link flex flex-col items-center justify-center text-gray-600 hover:text-tsm-green text-xs w-1/4 relative">
+            <div class="relative">
+                <i class="fa fa-heart text-xl"></i>
+                <span class="absolute -top-1 -right-2.5 bg-red-600 text-white text-xs font-semibold rounded-full h-4 w-4 flex items-center justify-center">0</span>
+            </div>
+            <span class="mt-1">Wishlist</span>
+        </a>
+        <a href="cart.html" class="mobile-nav-link active flex flex-col items-center justify-center text-gray-600 hover:text-tsm-green text-xs w-1/4 relative">
+            <div class="relative">
+                <i class="fa fa-shopping-bag text-xl"></i>
+                <span class="absolute -top-1 -right-2.5 bg-red-600 text-white text-xs font-semibold rounded-full h-4 w-4 flex items-center justify-center">0</span>
+            </div>
+            <span class="mt-1">Cart</span>
+        </a>
+        <a href="account.html" class="mobile-nav-link flex flex-col items-center justify-center text-gray-600 hover:text-tsm-green text-xs w-1/4">
+            <i class="fa fa-user text-xl"></i>
+            <span class="mt-1">My account</span>
+        </a>
+    </nav>
+
+    <div id="menu-drawer" class="drawer">
+        <div class="drawer-overlay" id="menu-drawer-overlay"></div>
+        <div class="drawer-content left flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 class="text-xl font-bold">MENU</h2>
+                <button id="menu-drawer-close" class="text-xl">&times;</button>
+            </div>
+            <div class="p-4 border-b">
+                <form class="flex">
+                    <input type="text" placeholder="Search for products" class="w-full px-4 py-2 border border-r-0 border-gray-300 rounded-l-md focus:outline-none">
+                    <button type="submit" class="bg-gray-100 border border-gray-300 px-4 rounded-r-md text-gray-600">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="flex border-b">
+                <button id="menu-tab-menu" class="flex-1 py-3 font-semibold border-b-2 border-yellow-500 text-yellow-500">MENU</button>
+                <button id="menu-tab-categories" class="flex-1 py-3 font-semibold text-gray-500">CATEGORIES</button>
+            </div>
+            <div id="menu-tab-menu-content" class="flex-col flex-grow overflow-y-auto">
+                <a href="index.html" class="block p-4 border-b font-semibold text-yellow-500">HOME</a>
+                <a href="shop.html" class="block p-4 border-b text-gray-700">SHOP</a>
+                <a href="#" class="block p-4 border-b text-gray-700">BLOG</a>
+                <a href="#" class="block p-4 border-b text-gray-700">ABOUT US</a>
+                <a href="#" class="block p-4 border-b text-gray-700">CONTACT US</a>
+                <div class="p-4 bg-gray-100 font-bold text-gray-600">MY ACCOUNT</div>
+                <a href="#" class="block p-4 border-b text-gray-700"><i class="fa fa-heart w-6 mr-1"></i> WISHLIST</a>
+                <a href="#" class="block p-4 border-b text-gray-700"><i class="fa fa-exchange-alt w-6 mr-1"></i> COMPARE</a>
+                <a href="account.html" class="block p-4 border-b text-gray-700"><i class="fa fa-user w-6 mr-1"></i> MY ACCOUNT</a>
+            </div>
+            <div id="menu-tab-categories-content" class="hidden flex-col flex-grow overflow-y-auto">
+                </div>
+        </div>
+    </div>
+
+    <div id="cart-drawer" class="drawer">
+        <div class="drawer-overlay" id="cart-drawer-overlay"></div>
+        <div class="drawer-content flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 class="text-xl font-bold">Shopping cart</h2>
+                <button id="cart-drawer-close" class="text-xl">&times;</button>
+            </div>
+            <div class="flex-grow p-6 overflow-y-auto text-center">
+                <p class="text-gray-500">Your cart is empty.</p>
+                </div>
+            <div class="p-6 border-t bg-gray-50">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-lg font-medium text-gray-600">Subtotal:</span>
+                    <span id="cart-total" class="text-xl font-bold text-tsm-green-dark">Rs. 0.00</span>
+                </div>
+                <p class="text-sm text-center text-gray-500 mb-4">Your order qualifies for free shipping!</p>
+                <div class="flex flex-col gap-3">
+                    <a href="cart.html" class="w-full text-center bg-white border-2 border-tsm-green text-tsm-green p-3 rounded-lg hover:bg-gray-50 font-bold text-base">
+                        VIEW CART
+                    </a>
+                    <a href="#" class="w-full text-center bg-tsm-green text-white p-3 rounded-lg hover:bg-tsm-green-dark font-bold text-base">
+                        CHECKOUT
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        // --- Firebase Imports ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            collection,
+            onSnapshot,
+            deleteDoc, 
+            updateDoc,  // <-- ALUTHIN
+            increment   // <-- ALUTHIN
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Firebase Config ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyANuQiVXF-9Uw1ZTQf0rSDDf8uOv9AJFaU",
+          authDomain: "tsmceylon-205ef.firebaseapp.com",
+          projectId: "tsmceylon-205ef",
+          storageBucket: "tsmceylon-205ef.firebasestorage.app",
+          messagingSenderId: "206746341347",
+          appId: "1:206746341347:web:3f78b78144dca573f85ad6",
+          measurementId: "G-DQ5CN05SMY"
+        };
+
+        // --- Initialize Firebase ---
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app); 
+        
+        // --- Data Paths ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const publicDataPath = `/artifacts/${appId}/public/data`;
+        const usersPath = `/users`; // <-- HARI PATH EKA MEKA
+
+        // --- Main Function ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setupMobileDrawers();
+            initFirebaseAuth(); 
+        });
+
+        /**
+         * Initialize Firebase Auth listeners
+         */
+        function initFirebaseAuth() {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.log('User signed in:', user.uid);
+                    loadCartItems(user.uid); 
+                    
+                    const cartCollectionRef = collection(db, usersPath, user.uid, 'cart');
+                    onSnapshot(cartCollectionRef, (snapshot) => {
+                        updateCartCounters(snapshot.size);
+                    });
+                    
+                    setupCancelModalListeners(user.uid); 
+
+                } else {
+                    console.log('User is signed out.');
+                    // User sign out wela nam, cart eka his karanna
+                    const emptyMsg = document.getElementById('cart-empty-message');
+                    const itemsContainer = document.getElementById('cart-items-container');
+                    const cartHeader = document.getElementById('cart-header');
+                    const subtotalEl = document.getElementById('cart-subtotal');
+                    const totalEl = document.getElementById('cart-total-price');
+                    const itemCountEl = document.getElementById('cart-item-count');
+
+                    emptyMsg.classList.remove('hidden');
+                    cartHeader.classList.add('hidden');
+                    itemsContainer.innerHTML = '';
+                    
+                    itemCountEl.textContent = '0';
+                    subtotalEl.textContent = '0.00';
+                    totalEl.textContent = '0.00';
+                    updateCartCounters(0);
+                }
+            });
+        }
+
+        /**
+         * Page eke thiyena cart counters (desktop, mobile) update කරනවා
+         */
+        function updateCartCounters(count) {
+            const counters = [
+                document.querySelector('#desktop-cart-btn span.absolute'), // Desktop
+                document.querySelector('a[href="cart.html"].mobile-nav-link span.absolute') // Mobile
+            ];
+            const countStr = String(count);
+            counters.forEach(counter => {
+                if (counter) {
+                    counter.textContent = countStr;
+                }
+            });
+        }
+
+        /**
+         * Userගෙ cart items ටික load කරලා page එකේ පෙන්නනවා
+         * --- (ALUTH BUTTON STYLE EKATH EKKA & RESPONSIVE) ---
+         */
+        function loadCartItems(userId) {
+            const itemsContainer = document.getElementById('cart-items-container');
+            const emptyMessage = document.getElementById('cart-empty-message');
+            const cartHeader = document.getElementById('cart-header');
+            const itemCountEl = document.getElementById('cart-item-count');
+            const subtotalEl = document.getElementById('cart-subtotal');
+            const totalEl = document.getElementById('cart-total-price');
+            
+            if (!itemsContainer || !emptyMessage || !cartHeader || !itemCountEl || !subtotalEl || !totalEl) {
+                console.error('Cart UI elements not found!');
+                return;
+            }
+            if (!userId) {
+                console.log("No user ID, cannot load cart.");
+                return; 
+            }
+
+            const cartRef = collection(db, usersPath, userId, 'cart');
+            
+            onSnapshot(cartRef, (snapshot) => {
+                if (snapshot.empty) {
+                    emptyMessage.classList.remove('hidden');
+                    cartHeader.classList.add('hidden');
+                    itemsContainer.innerHTML = '';
+                    
+                    itemCountEl.textContent = '0';
+                    subtotalEl.textContent = '0.00';
+                    totalEl.textContent = '0.00';
+                } else {
+                    emptyMessage.classList.add('hidden');
+                    
+                    // ******** MEKA THAMA HADUWE ********
+                    // 'hidden' class eka ain karanne na.
+                    // HTML eke 'hidden md:flex' classes walata responsive eka handle karanna denawa.
+                    // cartHeader.classList.remove('hidden'); // <-- ME LINET EKA AYIN KALA
+                    
+                    itemsContainer.innerHTML = ''; 
+                    let subtotal = 0;
+                    let totalItems = 0;
+                    
+                    snapshot.forEach(doc => {
+                        const item = { id: doc.id, ...doc.data() };
+                        
+                        const price = parseFloat(item.price) || 0;
+                        const quantity = parseInt(item.quantity) || 1;
+                        const itemSubtotal = price * quantity;
+                        
+                        subtotal += itemSubtotal;
+                        totalItems += quantity;
+                        
+                        // --- ME HTML EKA RESPONSIVE ---
+                        // Mobile waladi 'flex-col' (stack wenawa)
+                        // Desktop waladi 'md:flex-row' (peliye yanne)
+                        const itemHtml = `
+                        <div class="bg-white p-4 rounded-lg shadow-lg flex flex-col md:flex-row items-center">
+                            
+                            <div class="w-full md:w-2/5 flex items-center mb-4 md:mb-0">
+                                <img src="${item.imageUrl || 'https://placehold.co/100x100'}" alt="${item.name}" class="w-20 h-20 object-contain rounded-md border mr-4 flex-shrink-0">
+                                <div class="flex-grow">
+                                    <a href="product.html?id=${item.productId || item.id}" class="font-bold text-gray-800 hover:text-tsm-green">${item.name}</a>
+                                    
+                                    <button class="remove-item-btn text-xs font-semibold text-white bg-red-500 hover:bg-red-600 rounded-md px-2 py-1 mt-2 flex items-center justify-center gap-1 w-fit" data-id="${item.id}">
+                                        <i class="fas fa-trash-alt"></i>
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="w-full md:w-1/5 flex justify-between items-center md:block md:text-center py-2 md:py-0 border-b md:border-none">
+                                <span class="font-bold md:hidden">Price: </span>
+                                <span class="text-gray-700">Rs. ${price.toFixed(2)}</span>
+                            </div>
+
+                            <div class="w-full md:w-1/5 flex justify-between items-center md:justify-center my-4 md:my-0 py-2 md:py-0 border-b md:border-none">
+                                <span class="font-bold md:hidden mr-4">Quantity: </span>
+                                <div class="flex items-center border border-gray-300 rounded-md">
+                                    <button class="cart-qty-minus w-8 h-8 text-lg font-bold text-gray-600 hover:bg-gray-100 rounded-l-md" data-id="${item.id}">-</button>
+                                    <input type="number" value="${quantity}" min="1" class="cart-qty-input w-12 h-8 text-center border-none focus:ring-0" data-id="${item.id}" readonly>
+                                    <button class="cart-qty-plus w-8 h-8 text-lg font-bold text-gray-600 hover:bg-gray-100 rounded-r-md" data-id="${item.id}">+</button>
+                                </div>
+                            </div>
+
+                            <div class="w-full md:w-1/5 flex justify-between items-center md:block md:text-right pt-2 md:pt-0">
+                                <span class="font-bold md:hidden">Subtotal: </span>
+                                <span class="font-bold text-lg text-tsm-green-dark">Rs. ${itemSubtotal.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        `;
+                        itemsContainer.innerHTML += itemHtml;
+                    });
+                    
+                    itemCountEl.textContent = totalItems;
+                    subtotalEl.textContent = subtotal.toFixed(2);
+                    totalEl.textContent = subtotal.toFixed(2); 
+                    
+                    addRemoveButtonListeners(userId);
+                    addQuantityButtonListeners(userId); 
+                }
+            }, (error) => {
+                console.error("Error loading cart: ", error);
+                emptyMessage.textContent = 'Error loading your cart. Please try again.';
+                emptyMessage.classList.remove('hidden');
+                cartHeader.classList.add('hidden');
+            });
+        }
+
+        /**
+         * Cart eke "Remove" buttons walata click listeners add කරනවා
+         * (Meka modal eka open karanawa)
+         */
+        function addRemoveButtonListeners(userId) {
+            const removeButtons = document.querySelectorAll('.remove-item-btn');
+            const cancelModal = document.getElementById('cancel-modal');
+            const cancelItemIdInput = document.getElementById('cancel-item-id');
+            const cancelForm = document.getElementById('cancel-form');
+
+            if (!cancelModal || !cancelItemIdInput || !cancelForm) {
+                console.error("Cancel modal HTML elements not found!");
+                return;
+            }
+
+            removeButtons.forEach(button => {
+                const newButton = button.cloneNode(true);
+                button.parentNode.replaceChild(newButton, button);
+                
+                newButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const itemId = newButton.getAttribute('data-id');
+                    
+                    if (userId && itemId) {
+                        cancelItemIdInput.value = itemId;
+                        cancelForm.reset();
+                        document.getElementById('other-reason-text').classList.add('hidden');
+                        cancelModal.classList.remove('hidden');
+                    }
+                });
+            });
+        }
+
+        /**
+         * Cart eke "+" saha "-" buttons walata click listeners add කරනවා
+         */
+        function addQuantityButtonListeners(userId) {
+            const plusButtons = document.querySelectorAll('.cart-qty-plus');
+            const minusButtons = document.querySelectorAll('.cart-qty-minus');
+            
+            const cancelModal = document.getElementById('cancel-modal');
+            const cancelItemIdInput = document.getElementById('cancel-item-id');
+            const cancelForm = document.getElementById('cancel-form');
+
+            // "+" buttons walata listener eka
+            plusButtons.forEach(button => {
+                const newButton = button.cloneNode(true);
+                button.parentNode.replaceChild(newButton, button);
+                
+                newButton.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const itemId = newButton.dataset.id;
+                    const itemRef = doc(db, usersPath, userId, 'cart', itemId);
+                    try {
+                        await updateDoc(itemRef, { quantity: increment(1) });
+                    } catch (err) {
+                        console.error("Error increasing quantity: ", err);
+                    }
+                });
+            });
+
+            // "-" buttons walata listener eka
+            minusButtons.forEach(button => {
+                const newButton = button.cloneNode(true);
+                button.parentNode.replaceChild(newButton, button);
+                
+                newButton.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const itemId = newButton.dataset.id;
+                    const itemRef = doc(db, usersPath, userId, 'cart', itemId);
+                    
+                    try {
+                        const docSnap = await getDoc(itemRef);
+                        if (docSnap.exists() && docSnap.data().quantity > 1) {
+                            await updateDoc(itemRef, { quantity: increment(-1) });
+                        } else {
+                            // Quantity eka 1 nam, adu karanne nathuwa,
+                            // "Remove" karanna reason modal eka pennanawa!
+                            cancelItemIdInput.value = itemId;
+                            cancelForm.reset();
+                            document.getElementById('other-reason-text').classList.add('hidden');
+                            cancelModal.classList.remove('hidden');
+                        }
+                    } catch (err) {
+                        console.error("Error decreasing quantity: ", err);
+                    }
+                });
+            });
+        }
+
+
+        /**
+         * Mobile drawer (menu/cart) interactions
+         */
+        function setupMobileDrawers() {
+            // --- Menu Drawer ---
+            const menuDrawer = document.getElementById('menu-drawer');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const menuDrawerClose = document.getElementById('menu-drawer-close');
+            const menuDrawerOverlay = document.getElementById('menu-drawer-overlay');
+            
+            mobileMenuBtn?.addEventListener('click', () => menuDrawer?.classList.add('open'));
+            menuDrawerClose?.addEventListener('click', () => menuDrawer?.classList.remove('open'));
+            menuDrawerOverlay?.addEventListener('click', () => menuDrawer?.classList.remove('open'));
+
+            // Menu Drawer Tabs
+            const menuTabMenu = document.getElementById('menu-tab-menu');
+            const menuTabCategories = document.getElementById('menu-tab-categories');
+            const menuContent = document.getElementById('menu-tab-menu-content');
+            const categoriesContent = document.getElementById('menu-tab-categories-content');
+            const menuCatList = document.getElementById('menu-tab-categories-content');
+
+            menuTabMenu?.addEventListener('click', () => {
+                menuContent?.classList.remove('hidden');
+                categoriesContent?.classList.add('hidden');
+                menuTabMenu.classList.add('border-yellow-500', 'text-yellow-500');
+                menuTabCategories.classList.remove('border-yellow-500', 'text-yellow-500');
+            });
+            menuTabCategories?.addEventListener('click', () => {
+                menuContent?.classList.add('hidden');
+                categoriesContent?.classList.remove('hidden');
+                menuTabCategories.classList.add('border-yellow-500', 'text-yellow-500');
+                menuTabMenu.classList.remove('border-yellow-500', 'text-yellow-500');
+                if (menuCatList.children.length === 0) {
+                     loadCategoriesIntoDrawer(menuCatList);
+                }
+            });
+
+            // --- Cart Drawer ---
+            const cartDrawer = document.getElementById('cart-drawer');
+            const desktopCartBtn = document.getElementById('desktop-cart-btn');
+            const cartDrawerClose = document.getElementById('cart-drawer-close');
+            const cartDrawerOverlay = document.getElementById('cart-drawer-overlay');
+
+            const openCart = () => cartDrawer?.classList.add('open');
+            const closeCart = () => cartDrawer?.classList.remove('open');
+
+            desktopCartBtn?.addEventListener('click', openCart); 
+            cartDrawerClose?.addEventListener('click', closeCart);
+            cartDrawerOverlay?.addEventListener('click', closeCart);
+        }
+
+        /**
+         * "Cancel Reason" modal eke buttons/logic set karanawa
+         */
+        function setupCancelModalListeners(userId) {
+            const cancelModal = document.getElementById('cancel-modal');
+            const cancelForm = document.getElementById('cancel-form');
+            const closeCancelBtn = document.getElementById('close-cancel-modal-btn');
+            const closeCancelX = document.getElementById('close-cancel-modal-x');
+            const otherRadio = document.getElementById('reason-other');
+            const otherText = document.getElementById('other-reason-text');
+            const reasonRadios = document.querySelectorAll('input[name="reason"]');
+            const cancelItemIdInput = document.getElementById('cancel-item-id');
+
+            if (!cancelModal || !cancelForm || !closeCancelBtn || !closeCancelX || !otherRadio || !otherText || !cancelItemIdInput) {
+                console.error("One or more modal elements are missing. Cancel feature might not work.");
+                return;
+            }
+
+            // "Other" radio eka click karama text box eka pennanna
+            reasonRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    if (otherRadio.checked) {
+                        otherText.classList.remove('hidden');
+                    } else {
+                        otherText.classList.add('hidden');
+                    }
+                });
+            });
+
+            const closeModal = () => {
+                cancelModal.classList.add('hidden');
+            };
+
+            // "Back" button eka click karama modal eka wahanna
+            closeCancelBtn.addEventListener('click', closeModal);
+            closeCancelX.addEventListener('click', closeModal);
+
+            // Modal eka wahanna overlay eka click karama
+            cancelModal.addEventListener('click', (e) => {
+                if (e.target === cancelModal) {
+                    closeModal();
+                }
+            });
+
+            // Form eka "Confirm Removal" karama
+            cancelForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const itemId = cancelItemIdInput.value;
+                if (!itemId || !userId) {
+                    console.error("User ID or Item ID is missing.");
+                    return;
+                }
+
+                // Reason eka gannawa (Optional)
+                const formData = new FormData(cancelForm);
+                let reason = formData.get('reason');
+                if (reason === 'Other') {
+                    reason = otherText.value || 'Other'; 
+                }
+                
+                console.log(`Removing item: ${itemId}, User: ${userId}, Reason: ${reason}`);
+
+                // Firebase eken item eka delete karanawa
+                try {
+                    const itemRef = doc(db, usersPath, userId, 'cart', itemId);
+                    await deleteDoc(itemRef);
+                    
+                    // Success! Modal eka wahanna
+                    closeModal();
+                    cancelForm.reset();
+                    otherText.classList.add('hidden');
+
+                } catch (err) {
+                    console.error("Error removing item: ", err);
+                    alert("Error removing item. Please try again.");
+                }
+            });
+        }
+        
+        /**
+         * Mobile menu ekata categories load කරනවා
+         */
+        function loadCategoriesIntoDrawer(container) {
+             const collRef = collection(db, publicDataPath, 'categories');
+             onSnapshot(collRef, (querySnapshot) => {
+                container.innerHTML = ''; // Clear
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<p class="p-4 text-gray-500">No categories found.</p>';
+                    return;
+                }
+                querySnapshot.forEach((doc) => {
+                    const category = doc.data();
+                    container.innerHTML += `<a href="#" class="block p-4 border-b text-gray-700">${category.name}</a>`;
+                });
+             }, (error) => {
+                container.innerHTML = '<p class="p-4 text-red-500">Error loading categories.</p>';
+             });
+        }
+        
+    </script>
+    <div id="cancel-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div class="flex justify-between items-center p-4 border-b">
+                 <h2 class="text-xl font-bold text-gray-800">Remove Item from Cart</h2>
+                 <button id="close-cancel-modal-x" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+           
+            <form id="cancel-form" class="p-6">
+                <input type="hidden" id="cancel-item-id" value="">
+                <p class="text-sm text-gray-600 mb-4">Please let us know why you are removing this item (optional).</p>
+                
+                <div class="space-y-3">
+                    <div>
+                        <input type="radio" id="reason-changed-mind" name="reason" value="Changed mind" class="mr-2 accent-tsm-green">
+                        <label for="reason-changed-mind">Changed my mind</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="reason-accident" name="reason" value="Added by accident" class="mr-2 accent-tsm-green">
+                        <label for="reason-accident">Added by accident</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="reason-cheaper" name="reason" value="Found it cheaper elsewhere" class="mr-2 accent-tsm-green">
+                        <label for="reason-cheaper">Found it cheaper elsewhere</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="reason-other" name="reason" value="Other" class="mr-2 accent-tsm-green">
+                        <label for="reason-other">Other (Please specify)</label>
+                    </div>
+                    
+                    <textarea id="other-reason-text" class="hidden w-full p-2 border border-gray-300 rounded-md mt-2" placeholder="Your reason..."></textarea>
+                </div>
+            </form>
+            
+            <div class="flex justify-end gap-3 p-4 bg-gray-50 rounded-b-lg">
+                <button type="button" id="close-cancel-modal-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md font-semibold hover:bg-gray-300">
+                    Back
+                </button>
+                <button type="submit" form="cancel-form" class="px-4 py-2 bg-red-600 text-white rounded-md font-semibold hover:bg-red-700">
+                    Confirm Removal
+                </button>
+            </div>
+        </div>
+    </div>
+    </body>
+</html>

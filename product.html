@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Product... - TSM CEYLON</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'tsm-green': {
+                            light: '#eaf7e3',
+                            DEFAULT: '#65a30d',
+                            dark: '#4d7c0f',
+                        },
+                        'tsm-gray': {
+                            light: '#f8f8f8',
+                            DEFAULT: '#e5e5e5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        body {
+            @apply font-sans text-gray-800;
+        }
+        /* Quantity input buttons hide karanna */
+        input[type='number']::-webkit-inner-spin-button,
+        input[type='number']::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type='number'] {
+            -moz-appearance: textfield;
+        }
+        /* --- Drawer Styles (from index.html) --- */
+        .drawer-overlay { @apply fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity opacity-0 pointer-events-none; }
+        .drawer-content { @apply fixed top-0 right-0 h-full bg-white shadow-xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out; width: 90%; max-width: 400px; }
+        .drawer-content.left { @apply left-0 right-auto transform -translate-x-full; }
+        .drawer.open .drawer-overlay { @apply opacity-100 pointer-events-auto; }
+        .drawer.open .drawer-content { @apply transform translate-x-0; }
+        
+        /* --- Pop Animation (from index.html) --- */
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        .pop { animation: pop 0.2s ease-out; }
+
+        /* --- Mobile Nav (from index.html) --- */
+        .mobile-nav-link.active { @apply text-tsm-green; }
+        .tab-button.active { border-color: #65a30d; color: #65a30d; }
+    </style>
+</head>
+<body class="bg-tsm-gray-light pb-20 md:pb-0">
+
+    <header class="bg-white shadow-md sticky top-0 z-40 hidden md:block">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-3xl font-bold text-tsm-green-dark">
+                TSM CEYLON
+            </a>
+            <div class="flex-grow max-w-xl mx-4">
+                <form class="flex">
+                    <input type="text" placeholder="Search for anything..." class="w-full px-4 py-2 border border-tsm-gray-DEFAULT rounded-l-md focus:outline-none focus:ring-2 focus:ring-tsm-green">
+                    <button type="submit" class="bg-tsm-green text-white px-4 py-2 rounded-r-md hover:bg-tsm-green-dark">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div class="text-right">
+                    <div class="text-sm font-semibold">Happiness Hotline</div>
+                    <div class="text-lg font-bold text-tsm-green-dark">011 2001122</div>
+                </div>
+                <button id="desktop-account-btn" class="flex flex-col items-center text-gray-600 hover:text-tsm-green">
+                    <i class="fa fa-user text-xl"></i>
+                    <span class="text-xs">Account</span>
+                </button>
+                 <a href="#" class="relative flex flex-col items-center text-gray-600 hover:text-tsm-green">
+                    <i class="fa fa-heart text-xl"></i>
+                    <span id="wishlist-count-badge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5">0</span>
+                    <span class="text-xs">Wishlist</span>
+                </a>
+                <button id="desktop-cart-btn" class="flex flex-col items-center text-gray-600 hover:text-tsm-green relative">
+                    <i class="fa fa-shopping-cart text-xl"></i>
+                    <span id="cart-count-badge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5">0</span>
+                    <span class="text-xs">Cart</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-tsm-green-light shadow-sm hidden md:block">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+             <div class="flex space-x-6">
+                <div class="relative group">
+                    <a href="#" class="flex items-center bg-tsm-green text-white px-4 py-2.5 rounded-t-md font-bold">
+                        <i class="fa fa-bars mr-2"></i>
+                        Categories
+                        <i class="fa fa-chevron-down text-xs ml-2"></i>
+                    </a>
+                    <div class="dropdown-menu hidden absolute left-0 top-full w-56 bg-white shadow-lg rounded-b-md z-40 group-hover:block">
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Flowers</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Cakes & Bakes</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Supermarket</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Pharmacy</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Money Delivery</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block">Daily Deals</a>
+                    </div>
+                </div>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Flowers</a>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Cakes & Bakes</a>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Supermarket</a>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Pharmacy</a>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Money Delivery</a>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Daily Deals</a>
+            </div>
+            <a href="#" class="bg-tsm-green-dark text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-tsm-green">
+                Order Status
+            </a>
+        </div>
+    </nav>
+
+    <header class="bg-white shadow-md sticky top-0 z-40 flex md:hidden items-center justify-between p-4">
+        <button id="mobile-menu-btn" class="text-2xl text-gray-700">
+            <i class="fa fa-bars"></i>
+        </button>
+        <a href="index.html" class="text-2xl font-bold text-tsm-green-dark">
+            TSM CEYLON
+        </a>
+        <div class="w-8"></div> </header>
+
+
+    <main class="container mx-auto px-4 py-8">
+        
+        <nav id="breadcrumbs" class="text-sm text-gray-600 mb-4">
+            <a href="index.html" class="hover:underline">Home</a> &gt; 
+            <a href="shop.html" class="hover:underline">Products</a> &gt; 
+            <span class="font-bold" id="breadcrumb-product-name">Loading...</span>
+        </nav>
+
+        <section class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <div id="product-image-container">
+                    <img id="product-image" src="https://placehold.co/600x600/e2e8f0/94a3b8?text=Loading+Image..." alt="Product Image" class="w-full h-auto object-contain rounded-lg border">
+                </div>
+
+                <div>
+                    <h1 id="product-name" class="text-3xl font-bold mb-2">Loading Product...</h1>
+                    <p id="product-code" class="text-sm text-gray-500 mb-4">Product Code: Loading...</p>
+
+                    <div id="product-price-container" class="mb-4">
+                        <span class="text-3xl font-bold text-tsm-green-dark">Rs. 0.00</span>
+                    </div>
+
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="flex items-center border border-gray-300 rounded-md">
+                            <button id="qty-minus" class="w-10 h-10 text-lg font-bold text-gray-600 hover:bg-gray-100 rounded-l-md">-</button>
+                            <input id="product-qty" type="number" value="1" min="1" class="w-16 h-10 text-center border-none focus:ring-0">
+                            <button id="qty-plus" class="w-10 h-10 text-lg font-bold text-gray-600 hover:bg-gray-100 rounded-r-md">+</button>
+                        </div>
+                        <button id="add-to-cart-btn" class="flex-grow bg-tsm-green text-white py-3 px-6 rounded-md font-bold text-lg hover:bg-tsm-green-dark transition-colors">
+                            <i class="fa fa-shopping-cart mr-2"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+
+                    <button id="buy-it-now-btn" class="w-full bg-transparent border-2 border-tsm-green-dark text-tsm-green-dark py-3 px-6 rounded-md font-bold text-lg hover:bg-tsm-green-dark hover:text-white transition-colors mb-6">
+                        Buy It Now
+                    </button>
+
+                    <div class="mb-6">
+                        <h3 class="font-bold text-lg mb-2">Description</h3>
+                        <p id="product-description" class="text-gray-700 leading-relaxed">
+                            Loading description...
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-100 p-4 rounded-lg border border-gray-200">
+                        <h4 class="font-bold text-tsm-green-dark mb-3"><i class="fa fa-truck mr-2"></i>Earliest Delivery Available</h4>
+                        <div>
+                            <span class="font-semibold">Colombo District:</span>
+                            <span class="text-sm text-gray-600 block">2025-11-03 | 6:00 AM - 12:00 PM | 12:00 PM - 6:00 PM | 6:00 PM - 10:00 PM</span>
+                        </div>
+                         <div class="mt-2">
+                            <span class="font-semibold">Other Districts:</span>
+                            <span class="text-sm text-gray-600 block">2025-11-03 | 8:00 AM - 5:00 PM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="related-products" class="mt-16">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">OFTEN BOUGHT TOGETHER WITH</h2>
+            <div id="related-products-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                <p class="col-span-full text-gray-500 text-center">Loading related products...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 pt-16 pb-8 mt-16 hidden md:block">
+         <div class="container mx-auto px-4">
+            <div class="bg-gray-700 p-8 rounded-lg -mt-28 mb-16 relative z-10 shadow-xl flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-2">SUBSCRIBE TO US</h3>
+                    <p class="text-gray-300">Get the first look at exclusive offers, promotions, and more.</p>
+                </div>
+                <form class="flex w-full max-w-md">
+                    <input type="email" placeholder="Email Address" class="w-full px-4 py-3 rounded-l-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-tsm-green">
+                    <button type="submit" class="bg-tsm-green text-white px-6 py-3 rounded-r-md font-bold hover:bg-tsm-green-dark">
+                        SUBSCRIBE
+                    </button>
+                </form>
+            </div>
+            <div class="border-t border-gray-700 pt-6 text-sm text-center md:flex justify-between">
+                <p>&copy; 2025 TSM.com (Pvt) Ltd. All Rights reserved.</p>
+                <div class="space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white">TERMS & CONDITIONS</a>
+                    <span>|</span>
+                    <a href="#" class="hover:text-white">PRIVACY POLICY</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <nav class="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 shadow-lg flex justify-around items-center z-40 md:hidden">
+        <a href="index.html" class="mobile-nav-link active flex flex-col items-center justify-center text-gray-600 hover:text-tsm-green text-xs w-1/4">
+            <i class="fa fa-store text-xl"></i>
+            <span class="mt-1">Shop</span>
+        </a>
+        <a href="#" class="mobile-nav-link flex flex-col items-center justify-center text-gray-600 hover:text-tsm-green text-xs w-1/4 relative">
+            <div class="relative">
+                <i class="fa fa-heart text-xl"></i>
+                <span id="mobile-wishlist-badge" class="absolute -top-1 -right-2.5 bg-red-600 text-white text-xs font-semibold rounded-full h-4 w-4 flex items-center justify-center">0</span>
+            </div>
+            <span class="mt-1">Wishlist</span>
+        </a>
+        <button id="mobile-cart-btn" class="mobile-nav-link flex flex-col items-center justify-center text-gray-600 hover:text-tsm-green text-xs w-1/4 relative">
+            <div class="relative">
+                <i class="fa fa-shopping-bag text-xl"></i>
+                <span id="mobile-cart-badge" class="absolute -top-1 -right-2.5 bg-red-600 text-white text-xs font-semibold rounded-full h-4 w-4 flex items-center justify-center">0</span>
+            </div>
+            <span class="mt-1">Cart</span>
+        </button>
+        <button id="mobile-account-btn" class="mobile-nav-link flex flex-col items-center justify-center text-gray-600 hover:text-tsm-green text-xs w-1/4">
+            <i class="fa fa-user text-xl"></i>
+            <span class="mt-1">My account</span>
+        </button>
+    </nav>
+
+    <div id="cart-drawer" class="drawer">
+        <div class="drawer-overlay" id="cart-drawer-overlay"></div>
+        <div class="drawer-content flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 class="text-xl font-bold">Shopping cart</h2>
+                <button id="cart-drawer-close" class="text-xl">&times;</button>
+            </div>
+            <div id="cart-drawer-items-container" class="flex-grow p-6 overflow-y-auto text-center">
+                <p class="text-gray-500">Your cart is empty.</p>
+            </div>
+            <div class="p-6 border-t bg-gray-50">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-lg font-medium text-gray-600">Subtotal:</span>
+                    <span id="cart-drawer-total" class="text-xl font-bold text-tsm-green-dark">Rs. 0.00</span>
+                </div>
+                <p class="text-sm text-center text-gray-500 mb-4">Your order qualifies for free shipping!</p>
+                <div class="flex flex-col gap-3">
+                    <a href="cart.html" class="w-full text-center bg-white border-2 border-tsm-green text-tsm-green p-3 rounded-lg hover:bg-gray-50 font-bold text-base">
+                        VIEW CART
+                    </a>
+                    <a href="checkout.html" class="w-full text-center bg-tsm-green text-white p-3 rounded-lg hover:bg-tsm-green-dark font-bold text-base">
+                        CHECKOUT
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="account-drawer-modal" class="drawer drawer-modal fixed inset-0 z-50 hidden">
+        <div id="account-drawer-bg" class="drawer-bg fixed inset-0 bg-black bg-opacity-50 opacity-0 transition-opacity"></div>
+        <div id="account-drawer" class="drawer-content fixed top-0 right-0 h-full bg-white shadow-xl w-full max-w-md flex flex-col">
+            
+            <div id="account-drawer-logged-in" class="hidden flex flex-col h-full">
+                <div class="p-4 flex justify-between items-center border-b flex-shrink-0">
+                    <h2 class="text-xl font-semibold text-gray-800">My Account</h2>
+                    <button id="close-account-drawer-btn-logged-in" class="text-gray-500 hover:text-gray-800 text-sm flex items-center gap-1"><i class="fas fa-times"></i> Close</button>
+                </div>
+                <div class="flex-grow p-6 overflow-y-auto">
+                    <p class="text-gray-600 mb-2">Welcome back,</p>
+                    <h3 id="account-drawer-user-email" class="text-lg font-semibold text-gray-800 mb-6 break-words"></h3>
+                    <a href="account.html" class="w-full text-center bg-tsm-green text-white p-3 rounded-lg hover:bg-tsm-green-dark font-bold text-base">Go to My Account</a>
+                    <button id="drawer-logout-btn" class="w-full text-center bg-gray-100 text-gray-700 p-3 rounded-lg hover:bg-gray-200 font-bold text-base mt-4">Logout</button>
+                </div>
+            </div>
+            
+            <div id="account-drawer-logged-out" class="hidden flex flex-col h-full">
+                <div class="p-4 border-b">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-gray-700">Welcome!</h2>
+                        <button id="close-account-drawer-btn-logged-out" class="text-gray-500 hover:text-gray-800 text-sm flex items-center gap-1"><i class="fas fa-times"></i> Close</button>
+                    </div>
+                </div>
+                <div class="p-2 bg-gray-100 flex gap-2">
+                    <button id="drawer-login-tab-btn" class="tab-button active flex-1 bg-white p-2 rounded-md font-semibold border-b-2">Login</button>
+                    <button id="drawer-signup-tab-btn" class="tab-button flex-1 bg-white p-2 rounded-md font-semibold text-gray-500 border-b-2 border-transparent">Sign Up</button>
+                </div>
+                <div class="p-6" style="max-height: 80vh; overflow-y: auto;">
+                    <form id="drawer-login-form" class="space-y-4">
+                        <input type="email" id="drawer-login-email" placeholder="Email" required class="w-full p-3 border rounded-md focus:ring-tsm-green focus:border-tsm-green">
+                        <input type="password" id="drawer-login-password" placeholder="Password" required class="w-full p-3 border rounded-md focus:ring-tsm-green focus:border-tsm-green">
+                        <button type="submit" class="w-full bg-tsm-green text-white p-3 rounded-md hover:bg-tsm-green-dark font-bold">Login</button>
+                        <p id="drawer-login-error" class="text-red-500 text-sm text-center"></p>
+                    </form>
+                    <form id="drawer-signup-form" class="space-y-4 hidden">
+                        <input type="text" id="drawer-signup-name" placeholder="Full Name" required class="w-full p-3 border rounded-md focus:ring-tsm-green focus:border-tsm-green">
+                        <input type="email" id="drawer-signup-email" placeholder="Email" required class="w-full p-3 border rounded-md focus:ring-tsm-green focus:border-tsm-green">
+                        <input type="password" id="drawer-signup-password" placeholder="Password" required class="w-full p-3 border rounded-md focus:ring-tsm-green focus:border-tsm-green">
+                        <button type="submit" class="w-full bg-tsm-green text-white p-3 rounded-md hover:bg-tsm-green-dark font-bold">Create Account</button>
+                        <p id="drawer-signup-error" class="text-red-500 text-sm text-center"></p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu-drawer" class="drawer">
+        <div class="drawer-overlay" id="menu-drawer-overlay"></div>
+        <div class="drawer-content left flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 class="text-xl font-bold">MENU</h2>
+                <button id="menu-drawer-close" class="text-xl">&times;</button>
+            </div>
+            <div class="p-4 border-b">
+                <form class="flex">
+                    <input type="text" placeholder="Search for products" class="w-full px-4 py-2 border border-r-0 border-gray-300 rounded-l-md focus:outline-none">
+                    <button type="submit" class="bg-gray-100 border border-gray-300 px-4 rounded-r-md text-gray-600">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="flex border-b">
+                <button id="menu-tab-menu" class="flex-1 py-3 font-semibold border-b-2 border-yellow-500 text-yellow-500">MENU</button>
+                <button id="menu-tab-categories" class="flex-1 py-3 font-semibold text-gray-500">CATEGORIES</button>
+            </div>
+            <div id="menu-tab-menu-content" class="flex-col flex-grow overflow-y-auto">
+                <a href="index.html" class="block p-4 border-b font-semibold text-gray-700">HOME</a>
+                <a href="shop.html" class="block p-4 border-b text-yellow-500">SHOP</a>
+                <a href="#" class="block p-4 border-b text-gray-700">BLOG</a>
+                <a href="#" class="block p-4 border-b text-gray-700">ABOUT US</a>
+                <a href="#" class="block p-4 border-b text-gray-700">CONTACT US</a>
+                <div class="p-4 bg-gray-100 font-bold text-gray-600">MY ACCOUNT</div>
+                <a href="#" class="block p-4 border-b text-gray-700"><i class="fa fa-heart w-6 mr-1"></i> WISHLIST</a>
+                <a href="#" class="block p-4 border-b text-gray-700"><i class="fa fa-exchange-alt w-6 mr-1"></i> COMPARE</a>
+                <button id="drawer-my-account-btn" class="block w-full text-left p-4 border-b text-gray-700"><i class="fa fa-user w-6 mr-1"></i> MY ACCOUNT</button>
+            </div>
+            <div id="menu-tab-categories-content" class="hidden flex-col flex-grow overflow-y-auto">
+                </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            onAuthStateChanged, 
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            collection, 
+            getDocs,
+            onSnapshot, 
+            query,
+            limit,
+            setDoc,
+            updateDoc,       
+            deleteDoc,       
+            increment,       
+            serverTimestamp, 
+            setLogLevel 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+          apiKey: "AIzaSyANuQiVXF-9Uw1ZTQf0rSDDf8uOv9AJFaU",
+          authDomain: "tsmceylon-205ef.firebaseapp.com",
+          projectId: "tsmceylon-205ef",
+          storageBucket: "tsmceylon-205ef.firebasestorage.app",
+          messagingSenderId: "206746341347",
+          appId: "1:206746341347:web:3f78b78144dca573f85ad6",
+          measurementId: "G-DQ5CN05SMY"
+        };
+
+        // Initialize
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        setLogLevel('Debug');
+        
+        // Data Paths (HARI PATH EKA)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const publicDataPath = `/artifacts/${appId}/public/data`;
+        const usersPath = `/users`; // <-- HARI PATH EKA
+
+        // --- Global State ---
+        let currentProductData = null; 
+        let currentUser = null; 
+
+        // --- NEW: FIREBASE CART LOGIC ---
+        
+        /**
+         * Add item to Firebase cart
+         * --- (ALUTHIN HADUWE) ---
+         */
+        const addToCart = async (product, quantity = 1) => {
+            if (!currentUser) {
+                document.getElementById('account-drawer-modal')?.classList.remove('hidden');
+                return false; // <-- MEHEMA WENAS KALA: Return false if not logged in
+            }
+            const userId = currentUser.uid;
+            const cartItemRef = doc(db, usersPath, userId, 'cart', product.id); 
+            
+            const btn = document.getElementById('add-to-cart-btn');
+            if(btn) btn.disabled = true;
+
+            try {
+                const docSnap = await getDoc(cartItemRef);
+                
+                if (docSnap.exists()) {
+                    await updateDoc(cartItemRef, { 
+                        quantity: increment(quantity) 
+                    });
+                } else {
+                    await setDoc(cartItemRef, {
+                        productId: product.id,
+                        name: product.name,
+                        price: product.price,
+                        imageUrl: product.imageUrl,
+                        quantity: quantity,
+                        addedAt: serverTimestamp()
+                    });
+                }
+                
+                document.getElementById('cart-drawer').classList.add('open');
+                return true; // <-- MEHEMA WENAS KALA: Return true on success
+
+            } catch (error) {
+                console.error("Error adding to cart: ", error);
+                throw error; // <-- MEHEMA WENAS KALA: Throw the error so the 'await' catches it
+            } finally {
+                if(btn) btn.disabled = false;
+            }
+        };
+
+        /**
+         * Update cart counters (desktop, mobile)
+         */
+        function updateCartCounters(count) {
+            const countStr = String(count);
+            const badges = [
+                document.getElementById('cart-count-badge'),
+                document.getElementById('mobile-cart-badge')
+            ];
+            badges.forEach(badge => {
+                if(badge) {
+                    badge.textContent = countStr;
+                    // Pop animation
+                    badge.classList.add('pop');
+                    setTimeout(() => badge.classList.remove('pop'), 200);
+                }
+            });
+        }
+
+        /**
+         * Listen to Firebase cart and render the side drawer
+         */
+        function attachCartDrawerListener(userId) {
+            const container = document.getElementById('cart-drawer-items-container');
+            const totalEl = document.getElementById('cart-drawer-total');
+            if (!container || !totalEl) return;
+            
+            // User log out wela nam (userId == null)
+            if (!userId) {
+                container.innerHTML = '<p class="text-gray-500">Please log in to see your cart.</p>';
+                totalEl.textContent = 'Rs. 0.00';
+                updateCartCounters(0);
+                return;
+            }
+
+            // User log wela innawa nam, cart ekata listen karanna
+            const cartRef = collection(db, usersPath, userId, 'cart');
+            
+            onSnapshot(cartRef, (snapshot) => {
+                updateCartCounters(snapshot.size); // Counter update karanna
+                
+                let subtotal = 0;
+                
+                if (snapshot.empty) {
+                    container.innerHTML = '<p class="text-gray-500">Your cart is empty.</p>';
+                } else {
+                    container.innerHTML = ''; // Parana items clear karanna
+                    snapshot.forEach(doc => {
+                        const item = { id: doc.id, ...doc.data() };
+                        const price = parseFloat(item.price) || 0;
+                        const quantity = parseInt(item.quantity) || 1;
+                        const itemTotal = price * quantity;
+                        subtotal += itemTotal;
+                        
+                        // Drawer eka athule HTML eka hadanawa
+                        container.innerHTML += `
+                        <div class="flex items-center gap-4 py-4 border-b">
+                            <img src="${item.imageUrl || 'https://placehold.co/64'}" alt="${item.name}" class="w-16 h-16 rounded object-contain border p-1">
+                            <div class="flex-grow text-left">
+                                <h4 class="font-semibold text-sm text-slate-800">${item.name}</h4>
+                                <div class="flex items-center gap-2 my-1">
+                                    <button data-id="${item.id}" class="cart-qty-decrease w-6 h-6 font-bold rounded bg-slate-100 hover:bg-slate-200 flex items-center justify-center">-</button>
+                                    <span class="w-6 text-center font-bold text-sm text-slate-700">${quantity}</span>
+                                    <button data-id="${item.id}" class="cart-qty-increase w-6 h-6 font-bold rounded bg-slate-100 hover:bg-slate-200 flex items-center justify-center">+</button>
+                                </div>
+                                <p class="text-sm text-tsm-green-dark font-bold">Rs. ${itemTotal.toFixed(2)}</p>
+                            </div>
+                            <button data-id="${item.id}" class="cart-remove-item text-slate-400 hover:text-red-500" title="Remove Item">
+                                <i class="fas fa-times text-lg"></i>
+                            </button>
+                        </div>`;
+                    });
+                }
+                totalEl.textContent = `Rs. ${subtotal.toFixed(2)}`;
+                
+                // Drawer eke aluthin dapu buttons walata listeners add karanna
+                addCartDrawerButtonListeners(userId);
+                
+            }, (error) => {
+                console.error("Error in cart drawer listener: ", error);
+                container.innerHTML = '<p class="text-red-500">Error loading cart.</p>';
+            });
+        }
+
+        /**
+         * Add listeners to side cart buttons (qty +/-, remove)
+         */
+        function addCartDrawerButtonListeners(userId) {
+            const container = document.getElementById('cart-drawer-items-container');
+            if (!container) return;
+            
+            container.querySelectorAll('.cart-qty-decrease, .cart-qty-increase, .cart-remove-item').forEach(button => {
+                const newButton = button.cloneNode(true);
+                button.parentNode.replaceChild(newButton, button);
+                
+                newButton.addEventListener('click', async (e) => {
+                    const itemId = newButton.dataset.id;
+                    const itemRef = doc(db, usersPath, userId, 'cart', itemId);
+
+                    try {
+                        if (newButton.classList.contains('cart-remove-item')) {
+                            // Delete
+                            await deleteDoc(itemRef);
+                        } else if (newButton.classList.contains('cart-qty-increase')) {
+                            // Add 1
+                            await updateDoc(itemRef, { quantity: increment(1) });
+                        } else if (newButton.classList.contains('cart-qty-decrease')) {
+                            // Remove 1 (check karala)
+                            const docSnap = await getDoc(itemRef);
+                            if (docSnap.exists() && docSnap.data().quantity > 1) {
+                                await updateDoc(itemRef, { quantity: increment(-1) });
+                            } else {
+                                // Qty eka 1 nam, delete karanna
+                                await deleteDoc(itemRef);
+                            }
+                        }
+                    } catch (error) {
+                        console.error("Error updating cart item: ", error);
+                    }
+                });
+            });
+        }
+
+        // --- OLD WISHLIST LOGIC (Danata mehema thiyamu) ---
+        const updateWishlistCountBadge = () => {
+            const desktopBadge = document.getElementById('wishlist-count-badge');
+            const mobileBadge = document.getElementById('mobile-wishlist-badge');
+            if (desktopBadge) desktopBadge.textContent = '0';
+            if (mobileBadge) mobileBadge.textContent = '0';
+        };
+
+        // --- UPDATED: Auth State Change ---
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            const loggedInView = document.getElementById('account-drawer-logged-in');
+            const loggedOutView = document.getElementById('account-drawer-logged-out');
+            
+            if (user) {
+                // User is logged in
+                loggedInView.classList.remove('hidden');
+                loggedInView.classList.add('flex');
+                loggedOutView.classList.add('hidden');
+                loggedOutView.classList.remove('flex');
+                document.getElementById('account-drawer-user-email').textContent = user.email;
+
+                // --- NEW: Attach cart listener ---
+                attachCartDrawerListener(user.uid);
+                
+            } else {
+                // User is logged out
+                loggedInView.classList.add('hidden');
+                loggedInView.classList.remove('flex');
+                loggedOutView.classList.remove('hidden');
+                loggedOutView.classList.add('flex');
+                
+                // --- NEW: Clear cart drawer and counters ---
+                attachCartDrawerListener(null); // null pass karama drawer eka clear wenawa
+            }
+        });
+
+        // --- UPDATED: Drawer Setup ---
+        function setupMobileDrawers() {
+            // --- Menu Drawer ---
+            const menuDrawer = document.getElementById('menu-drawer');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const menuDrawerClose = document.getElementById('menu-drawer-close');
+            const menuDrawerOverlay = document.getElementById('menu-drawer-overlay');
+            
+            mobileMenuBtn?.addEventListener('click', () => menuDrawer?.classList.add('open'));
+            menuDrawerClose?.addEventListener('click', () => menuDrawer?.classList.remove('open'));
+            menuDrawerOverlay?.addEventListener('click', () => menuDrawer?.classList.remove('open'));
+
+            // Menu Drawer Tabs
+            const menuTabMenu = document.getElementById('menu-tab-menu');
+            const menuTabCategories = document.getElementById('menu-tab-categories');
+            const menuContent = document.getElementById('menu-tab-menu-content');
+            const categoriesContent = document.getElementById('menu-tab-categories-content');
+
+            menuTabMenu?.addEventListener('click', () => {
+                menuContent?.classList.remove('hidden');
+                categoriesContent?.classList.add('hidden');
+                menuTabMenu.classList.add('border-yellow-500', 'text-yellow-500');
+                menuTabCategories.classList.remove('border-yellow-500', 'text-yellow-500');
+            });
+            menuTabCategories?.addEventListener('click', () => {
+                menuContent?.classList.add('hidden');
+                categoriesContent?.classList.remove('hidden');
+                menuTabCategories.classList.add('border-yellow-500', 'text-yellow-500');
+                menuTabMenu.classList.remove('border-yellow-500', 'text-yellow-500');
+                if (categoriesContent.children.length === 0) {
+                     loadCategoriesIntoDrawer(categoriesContent);
+                }
+            });
+
+            // --- Cart Drawer ---
+            const cartDrawer = document.getElementById('cart-drawer');
+            const mobileCartBtn = document.getElementById('mobile-cart-btn');
+            const desktopCartBtn = document.getElementById('desktop-cart-btn');
+            const cartDrawerClose = document.getElementById('cart-drawer-close');
+            const cartDrawerOverlay = document.getElementById('cart-drawer-overlay');
+
+            const openCart = () => cartDrawer?.classList.add('open');
+            const closeCart = () => cartDrawer?.classList.remove('open');
+
+            mobileCartBtn?.addEventListener('click', openCart);
+            desktopCartBtn?.addEventListener('click', openCart);
+            cartDrawerClose?.addEventListener('click', closeCart);
+            cartDrawerOverlay?.addEventListener('click', closeCart);
+            
+            // --- Auth Drawer --- (Wenaskam ne)
+            const authDrawer = document.getElementById('account-drawer-modal');
+            const authDrawerBg = document.getElementById('account-drawer-bg');
+            const closeAuthBtn1 = document.getElementById('close-account-drawer-btn-logged-in');
+            const closeAuthBtn2 = document.getElementById('close-account-drawer-btn-logged-out');
+            
+            document.getElementById('desktop-account-btn')?.addEventListener('click', () => authDrawer?.classList.remove('hidden'));
+            document.getElementById('mobile-account-btn')?.addEventListener('click', () => authDrawer?.classList.remove('hidden'));
+            document.getElementById('drawer-my-account-btn')?.addEventListener('click', () => {
+                document.getElementById('menu-drawer')?.classList.remove('open'); 
+                authDrawer?.classList.remove('hidden');
+            });
+            
+            const closeAuthDrawer = () => authDrawer?.classList.add('hidden');
+            authDrawerBg?.addEventListener('click', closeAuthDrawer);
+            closeAuthBtn1?.addEventListener('click', closeAuthDrawer);
+            closeAuthBtn2?.addEventListener('click', closeAuthDrawer);
+
+            const loginTab = document.getElementById('drawer-login-tab-btn');
+            const signupTab = document.getElementById('drawer-signup-tab-btn');
+            const loginForm = document.getElementById('drawer-login-form');
+            const signupForm = document.getElementById('drawer-signup-form');
+
+            loginTab?.addEventListener('click', () => {
+                loginTab.classList.add('active');
+                signupTab.classList.remove('active');
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+            });
+            signupTab?.addEventListener('click', () => {
+                signupTab.classList.add('active');
+                loginTab.classList.remove('active');
+                signupForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            });
+
+            // Auth Form Submissions
+            loginForm?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('drawer-login-email').value;
+                const password = document.getElementById('drawer-login-password').value;
+                const errorP = document.getElementById('drawer-login-error');
+                errorP.textContent = 'Logging in...';
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    errorP.textContent = '';
+                    closeAuthDrawer(); 
+                } catch (error) { errorP.textContent = error.message.replace('Firebase: ', ''); }
+            });
+
+            signupForm?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('drawer-signup-name').value;
+                const email = document.getElementById('drawer-signup-email').value;
+                const password = document.getElementById('drawer-signup-password').value;
+                const errorP = document.getElementById('drawer-signup-error');
+                errorP.textContent = 'Creating account...';
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    const userDocRef = doc(db, usersPath, user.uid);
+                    await setDoc(userDocRef, { name: name, email: email, role: "customer" });
+                    errorP.textContent = '';
+                    closeAuthDrawer();
+                } catch (error) { errorP.textContent = error.message.replace('Firebase: ', ''); }
+            });
+            
+            document.getElementById('drawer-logout-btn')?.addEventListener('click', () => {
+                signOut(auth).then(() => { closeAuthDrawer(); });
+            });
+        }
+
+        /**
+         * Helper function to load categories into the mobile menu drawer
+         */
+        function loadCategoriesIntoDrawer(container) {
+             const collRef = collection(db, publicDataPath, 'categories');
+             onSnapshot(collRef, (querySnapshot) => {
+                container.innerHTML = ''; // Clear
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<p class="p-4 text-gray-500">No categories found.</p>';
+                    return;
+                }
+                querySnapshot.forEach((doc) => {
+                    const category = doc.data();
+                    container.innerHTML += `<a href="#" class="block p-4 border-b text-gray-700">${category.name}</a>`;
+                });
+             }, (error) => {
+                container.innerHTML = '<p class="p-4 text-red-500">Error loading categories.</p>';
+             });
+        }
+
+
+        // --- Main Page Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setupMobileDrawers();
+            updateWishlistCountBadge(); 
+
+            const qtyInput = document.getElementById('product-qty');
+            document.getElementById('qty-minus').onclick = () => {
+                let currentVal = parseInt(qtyInput.value);
+                if (currentVal > 1) qtyInput.value = currentVal - 1;
+            };
+            document.getElementById('qty-plus').onclick = () => {
+                let currentVal = parseInt(qtyInput.value);
+                qtyInput.value = currentVal + 1;
+            };
+
+            // "Add to Cart" Button
+            const addToCartBtn = document.getElementById('add-to-cart-btn');
+            addToCartBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentProductData) {
+                    const qty = parseInt(document.getElementById('product-qty').value) || 1;
+                    addToCart(currentProductData, qty);
+                } else {
+                    alert("Product data is still loading. Please wait.");
+                }
+            });
+
+            // "Buy It Now" Button
+            // --- (ME FUNCTION EKA SAMPURNENMA WENAS KALA) ---
+            const buyItNowBtn = document.getElementById('buy-it-now-btn');
+            buyItNowBtn.addEventListener('click', async (e) => { // <-- 1. Make async
+                e.preventDefault();
+                
+                // Button eka disable karala, spinner ekak danna
+                buyItNowBtn.disabled = true;
+                buyItNowBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>Processing...';
+
+                if (!currentProductData) {
+                    alert("Product data is still loading. Please wait.");
+                    buyItNowBtn.disabled = false;
+                    buyItNowBtn.innerHTML = 'Buy It Now';
+                    return;
+                }
+
+                try {
+                    const qty = parseInt(document.getElementById('product-qty').value) || 1;
+                    
+                    // Step 1: Add to cart and WAIT, check for success
+                    const success = await addToCart(currentProductData, qty); // <-- 2. Await the function
+                    
+                    if (success) {
+                        // Step 2: If addToCart was successful (returned true), redirect
+                        window.location.href = 'checkout.html';
+                    } else {
+                        // Step 3: If addToCart returned false (user not logged in), re-enable button
+                        buyItNowBtn.disabled = false;
+                        buyItNowBtn.innerHTML = 'Buy It Now';
+                        // Modal eka `addToCart` function eken open wela athi
+                    }
+                    
+                } catch (error) {
+                    // Step 4: If addToCart threw an error, show it
+                    console.error("Buy It Now Error:", error);
+                    alert("Could not add item to cart. Please try again.");
+                    buyItNowBtn.disabled = false;
+                    buyItNowBtn.innerHTML = 'Buy It Now';
+                }
+            });
+
+
+            // Load product data
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('id');
+
+            if (productId) {
+                loadProductDetails(productId);
+                loadRelatedProducts();
+            } else {
+                document.getElementById('product-name').textContent = 'Product Not Found';
+                document.getElementById('product-description').textContent = 'Please check the URL and make sure a product ID is provided.';
+            }
+        });
+
+        /**
+         * Loads product details from Firestore (Wenaskam ne)
+         */
+        async function loadProductDetails(productId) {
+            const docRef = doc(db, publicDataPath, 'products', productId);
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const product = docSnap.data();
+
+                    // Global variable eka set karanawa
+                    currentProductData = {
+                        id: docSnap.id,
+                        name: product.name,
+                        price: product.price,
+                        originalPrice: product.originalPrice || null,
+                        imageUrl: product.imageUrl
+                    };
+
+                    document.title = `${product.name} - TSM CEYLON`;
+                    document.getElementById('product-name').textContent = product.name;
+                    document.getElementById('breadcrumb-product-name').textContent = product.name;
+                    document.getElementById('product-code').textContent = `Product Code: ${docSnap.id.substring(0, 10).toUpperCase()}`; 
+                    document.getElementById('product-image').src = product.imageUrl;
+                    document.getElementById('product-image').alt = product.name;
+                    document.getElementById('product-description').textContent = product.description || 'No description available for this product.';
+
+                    const priceContainer = document.getElementById('product-price-container');
+                    if (product.originalPrice) {
+                        priceContainer.innerHTML = `
+                            <span class="text-3xl font-bold text-red-600">Rs. ${parseFloat(product.price).toFixed(2)}</span>
+                            <span class="text-xl text-gray-500 line-through ml-2">Rs. ${parseFloat(product.originalPrice).toFixed(2)}</span>
+                            ${product.saleTag ? `<span class="text-sm font-bold text-red-600 ml-2">${product.saleTag}</span>` : ''}
+                        `;
+                    } else {
+                        priceContainer.innerHTML = `
+                            <span class="text-3xl font-bold text-tsm-green-dark">Rs. ${parseFloat(product.price).toFixed(2)}</span>
+                        `;
+                    }
+                } else {
+                    document.getElementById('product-name').textContent = 'Product Not Found';
+                }
+            } catch (error) {
+                console.error("Error loading product: ", error);
+                document.getElementById('product-name').textContent = 'Error loading product';
+            }
+        }
+
+        /**
+         * Loads other products (Related products)
+         */
+        async function loadRelatedProducts() {
+            const container = document.getElementById('related-products-grid');
+            if (!container) return;
+            
+            const collRef = collection(db, publicDataPath, 'products');
+            const q = query(collRef, limit(6));
+
+            try {
+                const querySnapshot = await getDocs(q);
+                container.innerHTML = ''; 
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<p class="col-span-full text-gray-500 text-center">No other products found.</p>';
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const product = doc.data();
+                    const productData = {
+                        id: doc.id,
+                        name: product.name,
+                        price: product.price,
+                        originalPrice: product.originalPrice || null,
+                        imageUrl: product.imageUrl,
+                    };
+
+                    const productEl = document.createElement('div');
+                    productEl.className = "bg-white rounded-lg shadow-lg overflow-hidden group relative";
+                    productEl.innerHTML = `
+                        ${product.saleTag ? `<span class="sale-tag" style="padding-left: 10px;">${product.saleTag}</span>` : ''}
+                        
+                        <a href="product.html?id=${doc.id}">
+                            <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-contain group-hover:opacity-80 transition-opacity p-2">
+                        </a>
+                        <div class="p-4 flex flex-col h-full">
+                            <h3 class="text-sm font-semibold text-gray-800 h-10">${product.name}</h3>
+                            <div class="mt-2">
+                                <span class="text-lg font-bold ${product.originalPrice ? 'text-red-600' : 'text-gray-900'}">Rs. ${parseFloat(product.price).toFixed(2)}</span>
+                                ${product.originalPrice ? `<span class="text-sm text-gray-500 line-through ml-2">Rs. ${parseFloat(product.originalPrice).toFixed(2)}</span>` : ''}
+                            </div>
+                            <div class="flex-grow"></div>
+                            <button class="add-to-cart-btn w-full mt-3 bg-tsm-green text-white py-2 rounded-md font-bold hover:bg-tsm-green-dark transition-colors">
+                                Add to Cart
+                            </button>
+                        </div>
+                    `;
+
+                    // Aluthin hadapu addToCart function ekata call eka yawanawa
+                    productEl.querySelector('.add-to-cart-btn').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        addToCart(productData, 1); // Add 1 quantity
+                    });
+                    
+                    container.appendChild(productEl);
+                });
+            } catch (error) {
+                console.error("Error loading related products: ", error);
+                container.innerHTML = '<p class="col-span-full text-red-500 text-center">Error loading products.</p>';
+            }
+        }
+
+    </script>
+    </body>
+</html>

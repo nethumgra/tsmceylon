@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - TSM CEYLON</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'tsm-green': {
+                            light: '#eaf7e3',
+                            DEFAULT: '#65a30d',
+                            dark: '#4d7c0f',
+                        },
+                        'tsm-gray': {
+                            light: '#f8f8f8',
+                            DEFAULT: '#e5e5e5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        body {
+            @apply font-sans text-gray-800;
+        }
+         /* Active sidebar link */
+        .sidebar-link.active {
+            @apply bg-tsm-green text-white;
+        }
+        .sidebar-link {
+            @apply block w-full text-left px-4 py-3 rounded-md text-gray-700 font-semibold hover:bg-gray-200 transition-colors;
+        }
+        
+        /* Drawer Styles */
+        .drawer-overlay {
+            @apply fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity opacity-0 pointer-events-none;
+        }
+        .drawer-content {
+            @apply fixed top-0 right-0 h-full bg-white shadow-xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out;
+            width: 90%;
+            max-width: 400px;
+        }
+        /* Left drawer */
+        .drawer-content.left {
+            @apply left-0 right-auto transform -translate-x-full;
+        }
+        
+        /* Show drawer */
+        .drawer.open .drawer-overlay {
+            @apply opacity-100 pointer-events-auto;
+        }
+        .drawer.open .drawer-content {
+            @apply transform translate-x-0;
+        }
+
+        /* Mobile nav active state */
+        .mobile-nav-link.active {
+            @apply text-tsm-green;
+        }
+        
+        /* --- NEW: Auth Drawer Tab Style --- */
+        .tab-button.active { 
+            border-color: #65a30d; /* tsm-green */
+            color: #65a30d; /* tsm-green */
+        }
+    </style>
+</head>
+<body class="bg-tsm-gray-light pb-20 md:pb-0">
+
+    <header class="bg-white shadow-md sticky top-0 z-40 hidden md:block">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-3xl font-bold text-tsm-green-dark">
+                TSM CEYLON
+            </a>
+            <div class="flex-grow max-w-xl mx-4">
+                <form class="flex">
+                    <input type="text" placeholder="Search for anything..." class="w-full px-4 py-2 border border-tsm-gray-DEFAULT rounded-l-md focus:outline-none focus:ring-2 focus:ring-tsm-green">
+                    <button type="submit" class="bg-tsm-green text-white px-4 py-2 rounded-r-md hover:bg-tsm-green-dark">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div class="text-right">
+                    <div class="text-sm font-semibold">Happiness Hotline</div>
+                    <div class="text-lg font-bold text-tsm-green-dark">011 2001122</div>
+                </div>
+                <a href="account.html" class="flex flex-col items-center text-gray-600 hover:text-tsm-green">
+                    <i class="fa fa-user text-xl"></i>
+                    <span class="text-xs">Account</span>
+                </a>
+                <a href="#" id="desktop-cart-btn" class="flex flex-col items-center text-gray-600 hover:text-tsm-green relative">
+                    <i class="fa fa-shopping-cart text-xl"></i>
+                    <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5">0</span>
+                    <span class="text-xs">Cart</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-tsm-green-light shadow-sm hidden md:block">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+             <div class="flex space-x-6">
+                <div class="relative group">
+                    <a href="#" class="flex items-center bg-tsm-green text-white px-4 py-2.5 rounded-t-md font-bold">
+                        <i class="fa fa-bars mr-2"></i>
+                        Categories
+                        <i class="fa fa-chevron-down text-xs ml-2"></i>
+                    </a>
+                    <div class="dropdown-menu hidden absolute left-0 top-full w-56 bg-white shadow-lg rounded-b-md z-40 group-hover:block">
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Flowers</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Cakes & Bakes</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Supermarket</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Pharmacy</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block border-b">Money Delivery</a>
+                        <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-4 py-3 block">Daily Deals</a>
+                    </div>
+                </div>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Flowers</a>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Cakes & Bakes</a>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Supermarket</a>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Pharmacy</a>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Money Delivery</a>
+                <a href="#" class="font-semibold text-gray-700 hover:text-tsm-green-dark px-3 py-2.5 hidden md:block">Daily Deals</a>
+            </div>
+            <a href="#" class="bg-tsm-green-dark text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-tsm-green">
+                Order Status
+            </a>
+        </div>
+    </nav>
+
+    <header class="bg-white shadow-md sticky top-0 z-40 flex md:hidden items-center justify-between p-4">
+        <button id="mobile-menu-btn" class="text-2xl text-gray-700">
+            <i class="fa fa-bars"></i>
+        </button>
+        <a href="index.html" class="text-2xl font-bold text-tsm-green-dark">
+            TSM CEYLON
+        </a>
+        <div class="w-8"></div> </header>
+
+    <main class="container mx-auto px-4 py-8">
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            
+            <aside class="md:col-span-1 bg-white p-4 rounded-lg shadow-lg h-fit">
+                <h3 id="sidebar-welcome-title" class="text-xl font-bold mb-4 border-b pb-2">Welcome...</h3>
+                <nav class="space-y-1">
+                    <button id="tab-account" class="sidebar-link active"><i class="fa fa-user-circle w-6 mr-1"></i> My Account</button>
+                    <button id="tab-orders" class="sidebar-link"><i class="fa fa-box w-6 mr-1"></i> My Orders</button>
+                    <button id="tab-wishlist" class="sidebar-link"><i class="fa fa-heart w-6 mr-1"></i> My Wishlist</button>
+                    <button id="tab-address" class="sidebar-link"><i class="fa fa-map-marker-alt w-6 mr-1"></i> Address Book</button>
+                    <button id="tab-notifications" class="sidebar-link"><i class="fa fa-bell w-6 mr-1"></i> Notifications</button>
+                    <button id="tab-logout" class="sidebar-link"><i class="fa fa-sign-out-alt w-6 mr-1"></i> Logout</button>
+                </nav>
+            </aside>
+
+            <section class="md:col-span-3">
+                
+                <div class="mb-8 rounded-lg shadow-lg overflow-hidden">
+                    <img id="account-banner-img" src="https://placehold.co/800x250/e2e8f0/94a3b8?text=Loading+Account+Banner..." alt="Account Banner" class="w-full h-auto object-cover">
+                </div>
+
+                <div id="content-account">
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h2 class="text-2xl font-bold mb-6 border-b pb-3">My Account Details</h2>
+                        <form id="account-details-form">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="first-name" class="block text-sm font-medium text-gray-700">First Name</label>
+                                    <input type="text" id="first-name" value="User" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-tsm-green focus:border-tsm-green">
+                                </div>
+                                <div>
+                                    <label for="last-name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                                    <input type="text" id="last-name" value="Name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-tsm-green focus:border-tsm-green">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                                    <input type="email" id="email" value="user@example.com" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-tsm-green focus:border-tsm-green" disabled>
+                                </div>
+                                <div>
+                                    <label for="mobile" class="block text-sm font-medium text-gray-700">Mobile Number</label>
+                                    <input type="tel" id="mobile" value="0771234567" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-tsm-green focus:border-tsm-green">
+                                </div>
+                            </div>
+
+                            <hr class="my-8">
+
+                            <h3 class="text-xl font-bold mb-4">Change Password</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="current-password" class="block text-sm font-medium text-gray-700">Current Password</label>
+                                    <input type="password" id="current-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-tsm-green focus:border-tsm-green">
+                                </div>
+                                <div>
+                                    <label for="new-password" class="block text-sm font-medium text-gray-700">New Password</label>
+                                    <input type="password" id="new-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-tsm-green focus:border-tsm-green">
+                                </div>
+                            </div>
+
+                            <div class="mt-8 text-right">
+                                <button type="submit" class="px-6 py-3 bg-tsm-green text-white rounded-md font-bold hover:bg-tsm-green-dark transition-colors">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="content-orders" class="hidden">
+                     <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h2 class="text-2xl font-bold mb-6 border-b pb-3">My Orders</h2>
+                        <div class="text-center text-gray-500 py-12">
+                            <i class="fa fa-box-open text-4xl mb-4"></i>
+                            <p>You have no past orders.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="content-wishlist" class="hidden">
+                     <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h2 class="text-2xl font-bold mb-6 border-b pb-3">My Wishlist</h2>
+                        <div class="text-center text-gray-500 py-12">
+                            <i class="fa fa-heart text-4xl mb-4"></i>
+                            <p>Your wishlist is empty.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="content-address" class="hidden">
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <div class="flex justify-between items-center mb-6 border-b pb-3">
+                            <h2 class="text-2xl font-bold">Address Book</h2>
+                            <button id="show-address-form-btn" class="px-4 py-2 bg-tsm-green text-white rounded-md font-semibold hover:bg-tsm-green-dark">
+                                <i class="fa fa-plus mr-2"></i>Add New Address
+                            </button>
+                        </div>
+
+                        <div id="address-list">
+                            <div class="text-center text-gray-500 py-12">
+                                <i class="fa fa-map-marker-alt text-4xl mb-4"></i>
+                                <p>Loading addresses...</p>
+                            </div>
+                        </div>
+
+                        <div id="address-form-container" class="hidden">
+                            <h3 id="address-form-title" class="text-xl font-bold mb-4">Add New Address</h3>
+                            <form id="address-form" class="space-y-4">
+                                <input type="hidden" id="address-id">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="addr-name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                                        <input type="text" id="addr-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-tsm-green focus:border-tsm-green" required>
+                                    </div>
+                                    <div>
+                                        <label for="addr-mobile" class="block text-sm font-medium text-gray-700">Mobile Number</label>
+                                        <input type="tel" id="addr-mobile" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-tsm-green focus:border-tsm-green" required>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="addr-line1" class="block text-sm font-medium text-gray-700">Address Line 1 (Home No, Street)</label>
+                                    <input type="text" id="addr-line1" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-tsm-green focus:border-tsm-green" required>
+                                </div>
+                                <div>
+                                    <label for="addr-city" class="block text-sm font-medium text-gray-700">City</label>
+                                    <input type="text" id="addr-city" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-tsm-green focus:border-tsm-green" required>
+                                </div>
+                                <div>
+                                    <label for="addr-district" class="block text-sm font-medium text-gray-700">District</label>
+                                    <input type="text" id="addr-district" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-tsm-green focus:border-tsm-green" required>
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="addr-default" class="h-4 w-4 text-tsm-green focus:ring-tsm-green border-gray-300 rounded">
+                                    <label for="addr-default" class="ml-2 block text-sm text-gray-900">Set as default shipping address</label>
+                                </div>
+
+                                <div class="flex justify-end gap-3 pt-4">
+                                    <button type="button" id="cancel-address-form-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md font-semibold hover:bg-gray-300">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="px-4 py-2 bg-tsm-green text-white rounded-md font-semibold hover:bg-tsm-green-dark">
+                                        Save Address
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-notifications" class="hidden">
+                     <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h2 class="text-2xl font-bold mb-6 border-b pb-3">Notifications</h2>
+                        <div class="text-center text-gray-500 py-12">
+                            <i class="fa fa-bell text-4xl mb-4"></i>
+                            <p>You have no new notifications.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 pt-16 pb-8 mt-16 hidden md:block">
+         <div class="container mx-auto px-4">
+            <div class="bg-gray-700 p-8 rounded-lg -mt-28 mb-16 relative z-10 shadow-xl flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-2">SUBSCRIBE TO US</h3>
+                    <p class="text-gray-300">Get the first look at exclusive offers, promotions, and more.</p>
+                </div>
+                <form class="flex w-full max-w-md">
+                    <input type="email" placeholder="Email Address" class="w-full px-4 py-3 rounded-l-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-tsm-green">
+                    <button type="submit" class="bg-tsm-green text-white px-6 py-3 rounded-r-md font-bold hover:bg-tsm-green-dark">
+                        SUBSCRIBE
+                    </button>
+                </form>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-6 text-sm text-center md:flex justify-between">
+                <p>&copy; 2025 TSM.com (Pvt) Ltd. All Rights reserved.</p>
+                <div class="space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white">TERMS & CONDITIONS</a>
+                    <span>|</span>
+                    <a href="#" class="hover:text-white">PRIVACY POLICY</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <nav class="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 shadow-lg flex justify-around items-center z-40 md:hidden">
+        <a href="index.html" class="mobile-nav-link flex flex-col items-center justify-center text-gray-600 hover:text-tsm-green text-xs w-1/4">
+            <i class="fa fa-store text-xl"></i>
+            <span class="mt-1">Shop</span>
+        </a>
+        <a href="#" class="mobile-nav-link flex flex-col items-center justify-center text-gray-600 hover:text-tsm-green text-xs w-1/4 relative">
+            <div class="relative">
+                <i class="fa fa-heart text-xl"></i>
+                <span class="absolute -top-1 -right-2.5 bg-red-600 text-white text-xs font-semibold rounded-full h-4 w-4 flex items-center justify-center">0</span>
+            </div>
+            <span class="mt-1">Wishlist</span>
+        </a>
+        <button id="mobile-cart-btn" class="mobile-nav-link flex flex-col items-center justify-center text-gray-600 hover:text-tsm-green text-xs w-1/4 relative">
+            <div class="relative">
+                <i class="fa fa-shopping-bag text-xl"></i>
+                <span class="absolute -top-1 -right-2.5 bg-red-600 text-white text-xs font-semibold rounded-full h-4 w-4 flex items-center justify-center">0</span>
+            </div>
+            <span class="mt-1">Cart</span>
+        </button>
+        <a href="account.html" class="mobile-nav-link active flex flex-col items-center justify-center text-gray-600 hover:text-tsm-green text-xs w-1/4">
+            <i class="fa fa-user text-xl"></i>
+            <span class="mt-1">My account</span>
+        </a>
+    </nav>
+
+    <div id="menu-drawer" class="drawer">
+        <div class="drawer-overlay" id="menu-drawer-overlay"></div>
+        <div class="drawer-content left flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 class="text-xl font-bold">MENU</h2>
+                <button id="menu-drawer-close" class="text-xl">&times;</button>
+            </div>
+            <div class="p-4 border-b">
+                <form class="flex">
+                    <input type="text" placeholder="Search for products" class="w-full px-4 py-2 border border-r-0 border-gray-300 rounded-l-md focus:outline-none">
+                    <button type="submit" class="bg-gray-100 border border-gray-300 px-4 rounded-r-md text-gray-600">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="flex border-b">
+                <button id="menu-tab-menu" class="flex-1 py-3 font-semibold border-b-2 border-yellow-500 text-yellow-500">MENU</button>
+                <button id="menu-tab-categories" class="flex-1 py-3 font-semibold text-gray-500">CATEGORIES</button>
+            </div>
+            <div id="menu-tab-menu-content" class="flex-col flex-grow overflow-y-auto">
+                <a href="index.html" class="block p-4 border-b font-semibold text-yellow-500">HOME</a>
+                <a href="#" class="block p-4 border-b text-gray-700">SHOP</a>
+                <a href="#" class="block p-4 border-b text-gray-700">BLOG</a>
+                <a href="#" class="block p-4 border-b text-gray-700">ABOUT US</a>
+                <a href="#" class="block p-4 border-b text-gray-700">CONTACT US</a>
+                <div class="p-4 bg-gray-100 font-bold text-gray-600">MY ACCOUNT</div>
+                <a href="#" class="block p-4 border-b text-gray-700"><i class="fa fa-heart w-6 mr-1"></i> WISHLIST</a>
+                <a href="#" class="block p-4 border-b text-gray-700"><i class="fa fa-exchange-alt w-6 mr-1"></i> COMPARE</a>
+                <a href="account.html" class="block p-4 border-b text-gray-700"><i class="fa fa-user w-6 mr-1"></i> MY ACCOUNT</a>
+            </div>
+            <div id="menu-tab-categories-content" class="hidden flex-col flex-grow overflow-y-auto">
+                </div>
+        </div>
+    </div>
+
+    <div id="cart-drawer" class="drawer">
+        <div class="drawer-overlay" id="cart-drawer-overlay"></div>
+        <div class="drawer-content flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 class="text-xl font-bold">Shopping cart</h2>
+                <button id="cart-drawer-close" class="text-xl">&times;</button>
+            </div>
+            <div class="flex-grow p-6 overflow-y-auto text-center">
+                <p class="text-gray-500">Your cart is empty.</p>
+                </div>
+            <div class="p-6 border-t bg-gray-50">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-lg font-medium text-gray-600">Subtotal:</span>
+                    <span id="cart-total" class="text-xl font-bold text-tsm-green-dark">Rs. 0.00</span>
+                </div>
+                <p class="text-sm text-center text-gray-500 mb-4">Your order qualifies for free shipping!</p>
+                <div class="flex flex-col gap-3">
+                    <a href="#" class="w-full text-center bg-white border-2 border-tsm-green text-tsm-green p-3 rounded-lg hover:bg-gray-50 font-bold text-base">
+                        VIEW CART
+                    </a>
+                    <a href="#" class="w-full text-center bg-tsm-green text-white p-3 rounded-lg hover:bg-tsm-green-dark font-bold text-base">
+                        CHECKOUT
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="account-drawer-modal" class="drawer drawer-modal fixed inset-0 z-50 hidden">
+        <div id="account-drawer-bg" class="drawer-bg fixed inset-0 bg-black bg-opacity-50 opacity-0 transition-opacity"></div>
+        <div id="account-drawer" class="drawer-content fixed top-0 right-0 h-full bg-white shadow-xl w-full max-w-md flex flex-col">
+            
+            <div id="account-drawer-logged-in" class="hidden flex flex-col h-full">
+                </div>
+            
+            <div id="account-drawer-logged-out" class="flex flex-col h-full">
+                <div class="p-4 border-b">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-gray-700">Welcome!</h2>
+                        <button id="close-account-drawer-btn-logged-out" class="text-gray-500 hover:text-gray-800 text-sm flex items-center gap-1"><i class="fas fa-times"></i> Close</button>
+                    </div>
+                </div>
+                <div class="p-2 bg-gray-100 flex gap-2">
+                    <button id="drawer-login-tab-btn" class="tab-button active flex-1 bg-white p-2 rounded-md font-semibold border-b-2">Login</button>
+                    <button id="drawer-signup-tab-btn" class="tab-button flex-1 bg-white p-2 rounded-md font-semibold text-gray-500 border-b-2 border-transparent">Sign Up</button>
+                </div>
+                <div class="p-6" style="max-height: 80vh; overflow-y: auto;">
+                    <form id="drawer-login-form" class="space-y-4">
+                        <input type="email" id="drawer-login-email" placeholder="Email" required class="w-full p-3 border rounded-md focus:ring-tsm-green focus:border-tsm-green">
+                        <input type="password" id="drawer-login-password" placeholder="Password" required class="w-full p-3 border rounded-md focus:ring-tsm-green focus:border-tsm-green">
+                        <button type="submit" class="w-full bg-tsm-green text-white p-3 rounded-md hover:bg-tsm-green-dark font-bold">Login</button>
+                        <p id="drawer-login-error" class="text-red-500 text-sm text-center"></p>
+                    </form>
+                    <form id="drawer-signup-form" class="space-y-4 hidden">
+                        <input type="text" id="drawer-signup-name" placeholder="Full Name" required class="w-full p-3 border rounded-md focus:ring-tsm-green focus:border-tsm-green">
+                        <input type="email" id="drawer-signup-email" placeholder="Email" required class="w-full p-3 border rounded-md focus:ring-tsm-green focus:border-tsm-green">
+                        <input type="password" id="drawer-signup-password" placeholder="Password" required class="w-full p-3 border rounded-md focus:ring-tsm-green focus:border-tsm-green">
+                        <button type="submit" class="w-full bg-tsm-green text-white p-3 rounded-md hover:bg-tsm-green-dark font-bold">Create Account</button>
+                        <p id="drawer-signup-error" class="text-red-500 text-sm text-center"></p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        // --- NEW/UPDATED IMPORTS ---
+        import { 
+            getAuth, 
+            onAuthStateChanged,
+            signOut, // Logout Aona
+            createUserWithEmailAndPassword, // <-- NEW
+            signInWithEmailAndPassword  // <-- NEW
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setLogLevel,
+            collection,
+            addDoc,
+            updateDoc,
+            deleteDoc,
+            onSnapshot,
+            query,
+            setDoc, // <-- NEW
+            serverTimestamp // <-- NEW
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+
+        // Firebase Config
+        const firebaseConfig = {
+          apiKey: "AIzaSyANuQiVXF-9Uw1ZTQf0rSDDf8uOv9AJFaU",
+          authDomain: "tsmceylon-205ef.firebaseapp.com",
+          projectId: "tsmceylon-205ef",
+          storageBucket: "tsmceylon-205ef.firebasestorage.app",
+          messagingSenderId: "206746341347",
+          appId: "1:206746341347:web:3f78b78144dca573f85ad6",
+          measurementId: "G-DQ5CN05SMY"
+        };
+
+        // Initialize
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app); // <-- NEW
+        setLogLevel('Debug');
+        
+        // Data Paths
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const publicDataPath = `/artifacts/${appId}/public/data`;
+        const usersPath = `/users`; // <-- NEW
+
+        // --- GLOBAL STATE ---
+        let currentUser = null; // <-- NEW
+
+        // --- Main Function ---
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- NEW AUTH LISTENER ---
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // User is logged in
+                    currentUser = user;
+                    // Dan thama page eke anith ewa load karanne
+                    loadAccountBanner();
+                    setupMobileDrawers(); // Drawer logic (auth modal ekath ekka)
+                    setupAccountTabs(); // Meke thama logout button logic ekath thiyenne
+                    
+                    loadUserData(user); // NEW: User name eka load karanna
+                    setupAddressBook(user.uid); // NEW: Address book logic eka setup karanna
+
+                } else {
+                    // User is not logged in
+                    currentUser = null;
+                    console.log("No user logged in, showing login modal.");
+                    
+                    // --- ALUTH LOGIC EKA ---
+                    // Redirect karanne ne. Modal eka pennanawa.
+                    const authDrawer = document.getElementById('account-drawer-modal');
+                    if (authDrawer) {
+                        authDrawer.classList.remove('hidden');
+                        // Modal eke auth state eka 'logged-out' widiyata hadamu
+                        document.getElementById('account-drawer-logged-in')?.classList.add('hidden');
+                        document.getElementById('account-drawer-logged-out')?.classList.remove('hidden');
+                        document.getElementById('account-drawer-logged-out')?.classList.add('flex');
+                    }
+                    
+                    // Page content eka hanguwath kamak ne
+                    document.querySelector('main.container')?.classList.add('hidden');
+                }
+            });
+            // --- END NEW AUTH ---
+        });
+
+        /**
+         * NEW: Loads user data into sidebar
+         */
+        async function loadUserData(user) {
+            // User log unata passe page eka pennanna
+            document.querySelector('main.container')?.classList.remove('hidden');
+            
+            const sidebarWelcome = document.getElementById('sidebar-welcome-title');
+            if (!sidebarWelcome) return;
+            try {
+                const userDocRef = doc(db, usersPath, user.uid);
+                const docSnap = await getDoc(userDocRef);
+                if (docSnap.exists() && docSnap.data().name) {
+                     sidebarWelcome.textContent = `Welcome, ${docSnap.data().name.split(' ')[0]}!`; // First name only
+                } else {
+                     sidebarWelcome.textContent = `Welcome, User!`;
+                }
+            } catch (e) {
+                console.error("Error loading user name", e);
+                sidebarWelcome.textContent = `Welcome, User!`;
+            }
+        }
+
+        /**
+         * Loads the account page banner from Firestore
+         */
+        async function loadAccountBanner() {
+            const bannerImg = document.getElementById('account-banner-img');
+            if (!bannerImg) return;
+
+            // Meka admin panel eke hadana aluth document ekak
+            const docRef = doc(db, publicDataPath, 'siteContent', 'accountBanner');
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    bannerImg.src = data.imageUrl || 'https://placehold.co/800x250/e2e8f0/94a3b8?text=Banner';
+                } else {
+                    console.log("No account banner data found.");
+                }
+            } catch (e) {
+                console.error("Error loading account banner: ", e);
+            }
+        }
+
+        /**
+         * Sets up all mobile drawer interactions (UPDATED with Auth)
+         */
+        function setupMobileDrawers() {
+            // --- Menu Drawer ---
+            const menuDrawer = document.getElementById('menu-drawer');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const menuDrawerClose = document.getElementById('menu-drawer-close');
+            const menuDrawerOverlay = document.getElementById('menu-drawer-overlay');
+            
+            mobileMenuBtn?.addEventListener('click', () => menuDrawer?.classList.add('open'));
+            menuDrawerClose?.addEventListener('click', () => menuDrawer?.classList.remove('open'));
+            menuDrawerOverlay?.addEventListener('click', () => menuDrawer?.classList.remove('open'));
+
+            // Menu Drawer Tabs
+            const menuTabMenu = document.getElementById('menu-tab-menu');
+            const menuTabCategories = document.getElementById('menu-tab-categories');
+            const menuContent = document.getElementById('menu-tab-menu-content');
+            const categoriesContent = document.getElementById('menu-tab-categories-content');
+
+            menuTabMenu?.addEventListener('click', () => {
+                menuContent?.classList.remove('hidden');
+                categoriesContent?.classList.add('hidden');
+                menuTabMenu.classList.add('border-yellow-500', 'text-yellow-500');
+                menuTabCategories.classList.remove('border-yellow-500', 'text-yellow-500');
+            });
+            menuTabCategories?.addEventListener('click', () => {
+                menuContent?.classList.add('hidden');
+                categoriesContent?.classList.remove('hidden');
+                menuTabCategories.classList.add('border-yellow-500', 'text-yellow-500');
+                menuTabMenu.classList.remove('border-yellow-500', 'text-yellow-500');
+                 if (categoriesContent.children.length === 0) {
+                     loadCategoriesIntoDrawer(categoriesContent);
+                }
+            });
+
+            // --- Cart Drawer ---
+            const cartDrawer = document.getElementById('cart-drawer');
+            const mobileCartBtn = document.getElementById('mobile-cart-btn');
+            const desktopCartBtn = document.getElementById('desktop-cart-btn');
+            const cartDrawerClose = document.getElementById('cart-drawer-close');
+            const cartDrawerOverlay = document.getElementById('cart-drawer-overlay');
+
+            const openCart = () => cartDrawer?.classList.add('open');
+            const closeCart = () => cartDrawer?.classList.remove('open');
+
+            mobileCartBtn?.addEventListener('click', openCart);
+            desktopCartBtn?.addEventListener('click', openCart); // Desktop button ekath open karanna
+            cartDrawerClose?.addEventListener('click', closeCart);
+            cartDrawerOverlay?.addEventListener('click', closeCart);
+
+            // --- NEW: Auth Drawer Logic ---
+            const authDrawer = document.getElementById('account-drawer-modal');
+            const authDrawerBg = document.getElementById('account-drawer-bg');
+            const closeAuthBtn2 = document.getElementById('close-account-drawer-btn-logged-out');
+            
+            // "Close" button eka (logged out view eke)
+            const closeAuthDrawer = () => {
+                 authDrawer?.classList.add('hidden');
+                 // User log wela nathnam page eka close kaloth, home ekata yanna
+                 if (!currentUser) {
+                     window.location.href = 'index.html';
+                 }
+            };
+            authDrawerBg?.addEventListener('click', closeAuthDrawer);
+            closeAuthBtn2?.addEventListener('click', closeAuthDrawer);
+
+            // Auth tabs
+            const loginTab = document.getElementById('drawer-login-tab-btn');
+            const signupTab = document.getElementById('drawer-signup-tab-btn');
+            const loginForm = document.getElementById('drawer-login-form');
+            const signupForm = document.getElementById('drawer-signup-form');
+
+            loginTab?.addEventListener('click', () => {
+                loginTab.classList.add('active');
+                signupTab.classList.remove('active');
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+            });
+            signupTab?.addEventListener('click', () => {
+                signupTab.classList.add('active');
+                loginTab.classList.remove('active');
+                signupForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            });
+
+            // Auth Form Submissions
+            loginForm?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('drawer-login-email').value;
+                const password = document.getElementById('drawer-login-password').value;
+                const errorP = document.getElementById('drawer-login-error');
+                errorP.textContent = 'Logging in...';
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    // Success! onAuthStateChanged eka wada karai, page eka load wei
+                    errorP.textContent = '';
+                    closeAuthDrawer(); 
+                } catch (error) {
+                    console.error("Login Error:", error);
+                    errorP.textContent = error.message.replace('Firebase: ', '');
+                }
+            });
+
+            signupForm?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('drawer-signup-name').value;
+                const email = document.getElementById('drawer-signup-email').value;
+                const password = document.getElementById('drawer-signup-password').value;
+                const errorP = document.getElementById('drawer-signup-error');
+                errorP.textContent = 'Creating account...';
+                
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    
+                    const userDocRef = doc(db, usersPath, user.uid);
+                    await setDoc(userDocRef, {
+                        name: name,
+                        email: email,
+                        role: "customer"
+                    });
+                    
+                    // Success! onAuthStateChanged eka wada karai
+                    errorP.textContent = '';
+                    closeAuthDrawer();
+                } catch (error) {
+                    console.error("Signup Error:", error);
+                    errorP.textContent = error.message.replace('Firebase: ', '');
+                }
+            });
+        }
+        
+        /**
+         * NEW HELPER: Load categories for menu
+         */
+        function loadCategoriesIntoDrawer(container) {
+             const collRef = collection(db, publicDataPath, 'categories');
+             onSnapshot(collRef, (querySnapshot) => {
+                container.innerHTML = ''; // Clear
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<p class="p-4 text-gray-500">No categories found.</p>';
+                    return;
+                }
+                querySnapshot.forEach((doc) => {
+                    const category = doc.data();
+                    container.innerHTML += `<a href="#" class="block p-4 border-b text-gray-700">${category.name}</a>`;
+                });
+             }, (error) => {
+                container.innerHTML = '<p class="p-4 text-red-500">Error loading categories.</p>';
+             });
+        }
+
+        /**
+         * Sets up the account page tab switching
+         */
+        function setupAccountTabs() {
+            // Get tabs
+            const tabAccount = document.getElementById('tab-account');
+            const tabOrders = document.getElementById('tab-orders');
+            const tabWishlist = document.getElementById('tab-wishlist');
+            const tabAddress = document.getElementById('tab-address');
+            const tabNotifications = document.getElementById('tab-notifications');
+            const tabLogout = document.getElementById('tab-logout');
+
+            // Get content blocks
+            const contentAccount = document.getElementById('content-account');
+            const contentOrders = document.getElementById('content-orders');
+            const contentWishlist = document.getElementById('content-wishlist');
+            const contentAddress = document.getElementById('content-address');
+            const contentNotifications = document.getElementById('content-notifications');
+
+            const allTabs = [tabAccount, tabOrders, tabWishlist, tabAddress, tabNotifications];
+            const allContent = [contentAccount, contentOrders, contentWishlist, contentAddress, contentNotifications];
+
+            // Helper function to show a tab
+            const showTab = (tabName) => {
+                allContent.forEach(content => content?.classList.add('hidden'));
+                allTabs.forEach(tab => tab?.classList.remove('active'));
+
+                if (tabName === 'account') {
+                    contentAccount?.classList.remove('hidden');
+                    tabAccount?.classList.add('active');
+                } else if (tabName === 'orders') {
+                    contentOrders?.classList.remove('hidden');
+                    tabOrders?.classList.add('active');
+                } else if (tabName === 'wishlist') {
+                    contentWishlist?.classList.remove('hidden');
+                    tabWishlist?.classList.add('active');
+                } else if (tabName === 'address') {
+                    contentAddress?.classList.remove('hidden');
+                    tabAddress?.classList.add('active');
+                } else if (tabName === 'notifications') {
+                    contentNotifications?.classList.remove('hidden');
+                    tabNotifications?.classList.add('active');
+                }
+            };
+
+            // Add event listeners
+            tabAccount?.addEventListener('click', (e) => { e.preventDefault(); showTab('account'); });
+            tabOrders?.addEventListener('click', (e) => { e.preventDefault(); showTab('orders'); });
+            tabWishlist?.addEventListener('click', (e) => { e.preventDefault(); showTab('wishlist'); });
+            tabAddress?.addEventListener('click', (e) => { e.preventDefault(); showTab('address'); });
+            tabNotifications?.addEventListener('click', (e) => { e.preventDefault(); showTab('notifications'); });
+
+            // Logout listener (UPDATED with Firebase)
+            tabLogout?.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    signOut(auth).catch((error) => {
+                        console.error('Sign out error', error);
+                        alert('Failed to log out. Please try again.');
+                    });
+                    // onAuthStateChanged listener eka automatic redirect eka handle karai
+                }
+            });
+        }
+
+        /**
+         * NEW: Sets up all logic for the Address Book tab
+         */
+        function setupAddressBook(userId) {
+            // Get all elements
+            const addressList = document.getElementById('address-list');
+            const formContainer = document.getElementById('address-form-container');
+            const showFormBtn = document.getElementById('show-address-form-btn');
+            const cancelFormBtn = document.getElementById('cancel-address-form-btn');
+            const addressForm = document.getElementById('address-form');
+            const addressFormTitle = document.getElementById('address-form-title');
+            const addressIdInput = document.getElementById('address-id');
+
+            // 1. Show Form Button Listener
+            showFormBtn?.addEventListener('click', () => {
+                addressForm.reset();
+                addressIdInput.value = '';
+                addressFormTitle.textContent = 'Add New Address';
+                formContainer.classList.remove('hidden');
+                addressList.classList.add('hidden');
+            });
+
+            // 2. Cancel Form Button Listener
+            cancelFormBtn?.addEventListener('click', () => {
+                formContainer.classList.add('hidden');
+                addressList.classList.remove('hidden');
+            });
+
+            // 3. Load Addresses (Real-time)
+            const addressesRef = collection(db, usersPath, userId, 'addresses');
+            onSnapshot(query(addressesRef), (snapshot) => {
+                if (!addressList) return;
+                
+                if (snapshot.empty) {
+                    addressList.innerHTML = `
+                        <div class="text-center text-gray-500 py-12">
+                            <i class="fa fa-map-marker-alt text-4xl mb-4"></i>
+                            <p>You have no saved addresses.</p>
+                        </div>`;
+                    return;
+                }
+                
+                addressList.innerHTML = ''; // Clear list
+                snapshot.forEach(doc => {
+                    const address = doc.data();
+                    const addressEl = document.createElement('div');
+                    addressEl.className = 'border rounded-lg p-4 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-start';
+                    addressEl.innerHTML = `
+                        <div class="md:col-span-2">
+                            <p class="font-bold text-lg">${address.name} ${address.isDefault ? '<span class="text-xs bg-tsm-green text-white px-2 py-0.5 rounded-full ml-2">Default</span>' : ''}</p>
+                            <p class="text-gray-600">${address.mobile}</p>
+                            <address class="not-italic text-gray-600 mt-2">
+                                ${address.line1}<br>
+                                ${address.city}, ${address.district}
+                            </address>
+                        </div>
+                        <div class="md:col-span-1 flex md:flex-col gap-2 justify-end">
+                            <button class="edit-address-btn text-sm font-medium text-tsm-green hover:underline" data-id="${doc.id}">Edit</button>
+                            <button class="delete-address-btn text-sm font-medium text-red-500 hover:underline" data-id="${doc.id}">Delete</button>
+                        </div>
+                    `;
+                    addressList.appendChild(addressEl);
+                });
+
+                // 4. Add Edit/Delete Listeners
+                addressList.querySelectorAll('.edit-address-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const id = e.target.dataset.id;
+                        const docRef = doc(db, usersPath, userId, 'addresses', id);
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            // Form eka fill karanawa
+                            document.getElementById('addr-name').value = data.name || '';
+                            document.getElementById('addr-mobile').value = data.mobile || '';
+                            document.getElementById('addr-line1').value = data.line1 || '';
+                            document.getElementById('addr-city').value = data.city || '';
+                            document.getElementById('addr-district').value = data.district || '';
+                            document.getElementById('addr-default').checked = data.isDefault || false;
+                            addressIdInput.value = id; // ID eka set karanawa
+                            
+                            addressFormTitle.textContent = 'Edit Address';
+                            formContainer.classList.remove('hidden');
+                            addressList.classList.add('hidden');
+                        }
+                    });
+                });
+
+                addressList.querySelectorAll('.delete-address-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const id = e.target.dataset.id;
+                        if (confirm('Are you sure you want to delete this address?')) {
+                            try {
+                                const docRef = doc(db, usersPath, userId, 'addresses', id);
+                                await deleteDoc(docRef);
+                                // onSnapshot eken UI eka auto update wei
+                            } catch (err) {
+                                console.error("Error deleting address:", err);
+                                alert("Failed to delete address.");
+                            }
+                        }
+                    });
+                });
+            });
+
+            // 5. Form Submit Listener (Save/Update)
+            addressForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = addressIdInput.value; // Edit karanawa nam ID eka enawa
+                const data = {
+                    name: document.getElementById('addr-name').value,
+                    mobile: document.getElementById('addr-mobile').value,
+                    line1: document.getElementById('addr-line1').value,
+                    city: document.getElementById('addr-city').value,
+                    district: document.getElementById('addr-district').value,
+                    isDefault: document.getElementById('addr-default').checked
+                };
+
+                try {
+                    if (id) {
+                        // Update
+                        const docRef = doc(db, usersPath, userId, 'addresses', id);
+                        await updateDoc(docRef, data);
+                    } else {
+                        // Add New
+                        const collRef = collection(db, usersPath, userId, 'addresses');
+                        await addDoc(collRef, data);
+                    }
+                    
+                    // Success! Form eka hide karala list eka pennanna
+                    formContainer.classList.add('hidden');
+                    addressList.classList.remove('hidden');
+                } catch (err) {
+                    console.error("Error saving address:", err);
+                    alert("Failed to save address.");
+                }
+            });
+        }
+
+
+    </script>
+
+</body>
+</html>
